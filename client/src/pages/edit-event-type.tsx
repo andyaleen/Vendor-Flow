@@ -33,6 +33,7 @@ const fieldLibrary = {
       { id: "contact_email", label: "Contact Email", type: "email", required: true },
       { id: "contact_phone", label: "Contact Phone Number", type: "phone", required: false },
       { id: "contact_title", label: "Contact Title", type: "text", required: false },
+      { id: "contact_fax", label: "Fax Number", type: "phone", required: false },
     ]
   }
 };
