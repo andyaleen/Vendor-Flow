@@ -207,11 +207,11 @@ export default function EditEventType() {
                           return (
                             <div key={`${selectedField.fieldId}-${selectedField.subFieldId}`} 
                                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                              <div className="flex items-center space-x-3 flex-1">
-                                <span className="text-sm font-medium text-gray-900 flex-1">
+                              <div className="flex items-center justify-between flex-1">
+                                <span className="text-sm font-medium text-gray-900">
                                   {field.label}
                                 </span>
-                                <div className="flex items-center space-x-2">
+                                <div className="flex items-center space-x-3">
                                   <Badge variant="secondary" className="bg-gray-200 text-gray-700 text-xs">
                                     {field.type}
                                   </Badge>
