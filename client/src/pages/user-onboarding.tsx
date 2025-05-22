@@ -20,7 +20,17 @@ const userOnboardingSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
 });
 
+const businessInfoSchema = z.object({
+  legalBusinessName: z.string().min(1, "Legal business name is required"),
+  dbaName: z.string().optional(),
+  taxId: z.string().min(1, "Taxpayer ID is required"),
+  businessAddress: z.string().min(1, "Business address is required"),
+  phoneNumber: z.string().min(1, "Phone number is required"),
+  companyEmail: z.string().email("Please enter a valid company email"),
+});
+
 type UserOnboardingFormData = z.infer<typeof userOnboardingSchema>;
+type BusinessInfoFormData = z.infer<typeof businessInfoSchema>;
 
 const uploadOptions = [
   { 
@@ -76,9 +86,21 @@ export default function UserOnboarding() {
     },
   });
 
+  const businessForm = useForm<BusinessInfoFormData>({
+    resolver: zodResolver(businessInfoSchema),
+    defaultValues: {
+      legalBusinessName: "",
+      dbaName: "",
+      taxId: "",
+      businessAddress: "",
+      phoneNumber: "",
+      companyEmail: "",
+    },
+  });
+
   const createUserMutation = useMutation({
-    mutationFn: async (data: UserOnboardingFormData) => {
-      return apiRequest("/api/user/setup", "POST", {
+    mutationFn: async (data: UserOnboardingFormData & BusinessInfoFormData) => {
+      return apiRequest("POST", "/api/user/setup", {
         ...data,
         selectedUploads,
       });
@@ -102,6 +124,21 @@ export default function UserOnboarding() {
   const handleUserInfoSubmit = (data: UserOnboardingFormData) => {
     form.clearErrors();
     setStep(2);
+  };
+
+  const handleUploadSelectionNext = () => {
+    if (selectedUploads.includes("basic")) {
+      setStep(3);
+    } else {
+      // Skip business info if basic not selected (shouldn't happen since it's required)
+      handleComplete();
+    }
+  };
+
+  const handleBusinessInfoSubmit = (data: BusinessInfoFormData) => {
+    businessForm.clearErrors();
+    const userData = form.getValues();
+    createUserMutation.mutate({ ...userData, ...data });
   };
 
   const handleUploadToggle = (uploadId: string) => {
@@ -269,13 +306,135 @@ export default function UserOnboarding() {
               Back
             </Button>
             <Button 
-              onClick={handleComplete}
-              disabled={createUserMutation.isPending}
+              onClick={handleUploadSelectionNext}
               className="flex-1"
             >
-              {createUserMutation.isPending ? "Setting up..." : "Complete Setup"}
+              Continue
             </Button>
           </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+
+  // Step 3: Business Information Form
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center p-4">
+      <Card className="w-full max-w-2xl">
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl">Basic Information</CardTitle>
+          <CardDescription>
+            Please provide your business details to complete your profile
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form {...businessForm}>
+            <form onSubmit={businessForm.handleSubmit(handleBusinessInfoSubmit)} className="space-y-6">
+              <FormField
+                control={businessForm.control}
+                name="legalBusinessName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Legal Business Name *</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter your legal business name" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={businessForm.control}
+                name="dbaName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>DBA (Doing Business As) Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter DBA name (if applicable)" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={businessForm.control}
+                name="taxId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Taxpayer Identification Number *</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter your Tax ID (EIN/SSN)" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={businessForm.control}
+                name="businessAddress"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Business Address *</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter your complete business address" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={businessForm.control}
+                  name="phoneNumber"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Phone Number *</FormLabel>
+                      <FormControl>
+                        <Input placeholder="(555) 123-4567" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={businessForm.control}
+                  name="companyEmail"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Company Email *</FormLabel>
+                      <FormControl>
+                        <Input type="email" placeholder="contact@company.com" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <Button 
+                  type="button"
+                  variant="outline" 
+                  onClick={() => setStep(2)}
+                  className="flex-1"
+                >
+                  Back
+                </Button>
+                <Button 
+                  type="submit"
+                  disabled={createUserMutation.isPending}
+                  className="flex-1"
+                >
+                  {createUserMutation.isPending ? "Setting up..." : "Complete Setup"}
+                </Button>
+              </div>
+            </form>
+          </Form>
         </CardContent>
       </Card>
     </div>
