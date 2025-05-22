@@ -22,6 +22,8 @@ const fieldLibrary = {
       { id: "payment_terms", label: "Payment Terms", type: "text", required: false },
       { id: "legal_entity_type", label: "Type of Legal Entity", type: "text", required: false },
       { id: "year_established", label: "Year Established", type: "number", required: false },
+      { id: "duns_number", label: "D&B Number", type: "number", required: false },
+      { id: "sales_tax_exempt", label: "Sales and Use Tax Exempt", type: "checkbox", required: false },
       { id: "dba_name", label: "DBA Name", type: "text", required: false },
     ]
   },
