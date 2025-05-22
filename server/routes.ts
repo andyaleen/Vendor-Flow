@@ -1,7 +1,8 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./replitAuth";
+import { authenticateUser, authenticateVendor, optionalAuth } from "./auth";
+import { registerUser, loginUser, loginVendor, getCurrentUser, logoutUser } from "./authRoutes";
 import { setupGoogleAuth, isAuthenticated as isGoogleAuthenticated } from "./googleAuth";
 import { 
   insertOnboardingRequestSchema, 

@@ -13,7 +13,7 @@ import {
 import { 
   users,
   type User,
-  type UpsertUser
+  type InsertUser
 } from "@shared/schema";
 
 export interface IStorage {
@@ -57,6 +57,7 @@ export class MemStorage implements IStorage {
     this.vendors = new Map();
     this.onboardingRequests = new Map();
     this.documents = new Map();
+    this.userIdCounter = 1;
     this.vendorIdCounter = 1;
     this.requestIdCounter = 1;
     this.documentIdCounter = 1;
