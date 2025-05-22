@@ -365,7 +365,19 @@ export default function UserOnboarding() {
                   <FormItem>
                     <FormLabel>Taxpayer Identification Number *</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter your Tax ID (EIN/SSN)" {...field} />
+                      <Input 
+                        placeholder="XX-XXXXXXX" 
+                        {...field}
+                        onChange={(e) => {
+                          // Format as XX-XXXXXXX
+                          let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+                          if (value.length >= 2) {
+                            value = value.slice(0, 2) + '-' + value.slice(2, 9);
+                          }
+                          field.onChange(value);
+                        }}
+                        maxLength={10}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -394,7 +406,23 @@ export default function UserOnboarding() {
                     <FormItem>
                       <FormLabel>Phone Number *</FormLabel>
                       <FormControl>
-                        <Input placeholder="(555) 123-4567" {...field} />
+                        <Input 
+                          placeholder="(XXX) XXX-XXXX" 
+                          {...field}
+                          onChange={(e) => {
+                            // Format as (XXX) XXX-XXXX
+                            let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+                            if (value.length >= 6) {
+                              value = `(${value.slice(0, 3)}) ${value.slice(3, 6)}-${value.slice(6, 10)}`;
+                            } else if (value.length >= 3) {
+                              value = `(${value.slice(0, 3)}) ${value.slice(3)}`;
+                            } else if (value.length > 0) {
+                              value = `(${value}`;
+                            }
+                            field.onChange(value);
+                          }}
+                          maxLength={14}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
