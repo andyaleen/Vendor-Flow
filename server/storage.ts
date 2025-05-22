@@ -80,6 +80,23 @@ export class MemStorage implements IStorage {
     return user;
   }
 
+  async updateUserProfile(id: string, profileData: any): Promise<User> {
+    const existingUser = this.users.get(id);
+    if (!existingUser) {
+      throw new Error("User not found");
+    }
+    
+    // Update user with profile data - in a real app, you'd store this business info
+    // For now, we'll just return the existing user
+    const updatedUser: User = {
+      ...existingUser,
+      updatedAt: new Date(),
+    };
+    
+    this.users.set(id, updatedUser);
+    return updatedUser;
+  }
+
   async getVendor(id: number): Promise<Vendor | undefined> {
     return this.vendors.get(id);
   }
