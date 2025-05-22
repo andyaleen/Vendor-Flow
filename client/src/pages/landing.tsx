@@ -58,7 +58,11 @@ export default function Landing() {
                 <span>English</span>
               </div>
               <span className="text-sm text-gray-600 hidden sm:block">Talk to sales</span>
-              <Button variant="ghost" size="sm">
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => window.location.href = '/api/auth/google'}
+              >
                 Log in
               </Button>
               <Button 
