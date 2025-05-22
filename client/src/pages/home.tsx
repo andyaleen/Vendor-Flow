@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,12 +9,11 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
-import { apiRequest } from "@/lib/queryClient";
 import { createRequestSchema, type CreateRequestFormData } from "@shared/schema";
-import { Plus, Copy, Users, Settings, Filter, MoreHorizontal, Link as LinkIcon, FileText, Building, Mail, Phone, CreditCard, Shield, ChevronDown, LogOut, Home as HomeIcon } from "lucide-react";
+import { Plus, Copy, Users, Settings, Filter, MoreHorizontal, Building, Mail, ChevronDown, LogOut, Home as HomeIcon } from "lucide-react";
 
 const availableFields = [
   { id: "company_info", label: "Company Information", required: true, icon: Building },
@@ -53,12 +52,12 @@ export default function Home() {
 
   const createRequestMutation = useMutation({
     mutationFn: async (data: CreateRequestFormData) => {
-      const response = await apiRequest("/api/onboarding-requests", {
+      const response = await fetch("/api/onboarding-requests", {
         method: "POST",
         body: JSON.stringify(data),
         headers: { "Content-Type": "application/json" },
       });
-      return response;
+      return response.json();
     },
     onSuccess: () => {
       setIsCreateDialogOpen(false);
@@ -68,7 +67,7 @@ export default function Home() {
         description: "Your vendor onboarding request has been created.",
       });
     },
-    onError: (error) => {
+    onError: () => {
       toast({
         title: "Error",
         description: "Failed to create vendor request. Please try again.",
@@ -87,16 +86,6 @@ export default function Home() {
       title: "Link copied!",
       description: "The vendor onboarding link has been copied to your clipboard.",
     });
-  };
-
-  const getFieldIcon = (fieldId: string) => {
-    const field = availableFields.find(f => f.id === fieldId);
-    return field?.icon || FileText;
-  };
-
-  const getFieldLabel = (fieldId: string) => {
-    const field = availableFields.find(f => f.id === fieldId);
-    return field?.label || fieldId;
   };
 
   if (!user) {
@@ -191,142 +180,116 @@ export default function Home() {
 
         {/* Main Content */}
         <main className="flex-1 flex">
-          {/* Left Panel - Vendor Requests */}
-          <div className="w-80 p-6 border-r border-gray-200">
-            <div className="mb-6">
-              <h1 className="text-xl font-semibold text-gray-900">Event Types</h1>
-              <p className="text-gray-600 text-sm mt-1">Set up your vendor onboarding flows</p>
-            </div>
-
-            <div className="space-y-3">
-              {/* Basic Vendor Setup Card */}
-              {vendorRequests.map((request) => (
-                <Card 
-                  key={request.id} 
-                  className={`cursor-pointer transition-all ${
-                    selectedRequestId === request.id 
-                      ? 'border-blue-500 bg-blue-50' 
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
-                  onClick={() => setSelectedRequestId(request.id)}
-                >
-                  <CardContent className="p-4">
-                    <div className="flex items-start space-x-3">
-                      <div className="w-3 h-8 bg-blue-500 rounded-sm flex-shrink-0"></div>
-                      <div className="flex-1">
-                        <h3 className="font-medium text-gray-900 text-sm">{request.title}</h3>
-                        <p className="text-xs text-gray-600 mt-1">
-                          {request.fields.length} fields • One-on-One
-                        </p>
-                      </div>
-                      <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100">
-                        <MoreHorizontal className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-
-              {/* Create New Request Button */}
-              <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="w-full h-auto p-4 border-dashed border-gray-300 hover:border-blue-400 hover:bg-blue-50"
-                  >
-                    <Plus className="w-4 h-4 mr-2" />
-                    New Event Type
+          {/* Main Panel - Event Types Grid */}
+          <div className={`${selectedRequestId ? 'flex-1' : 'w-full'} p-8 transition-all duration-300`}>
+            <div className="max-w-6xl mx-auto">
+              {/* Header */}
+              <div className="flex items-center justify-between mb-8">
+                <div>
+                  <h1 className="text-2xl font-semibold text-gray-900">Event Types</h1>
+                  <p className="text-gray-600 mt-1">Set up your vendor onboarding flows</p>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <Button variant="outline" size="sm">
+                    <Filter className="w-4 h-4 mr-2" />
+                    Filter
                   </Button>
-                </DialogTrigger>
-                <DialogContent className="max-w-md">
-                  <DialogHeader>
-                    <DialogTitle>Create New Vendor Request</DialogTitle>
-                    <DialogDescription>
-                      Set up a new onboarding flow for your vendors
-                    </DialogDescription>
-                  </DialogHeader>
-                  <Form {...form}>
-                    <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-                      <FormField
-                        control={form.control}
-                        name="requesterCompany"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Your Company Name</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Acme Corporation" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="requesterEmail"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Your Email</FormLabel>
-                            <FormControl>
-                              <Input type="email" placeholder="john@acme.com" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <div>
-                        <FormLabel>Required Information</FormLabel>
-                        <div className="space-y-2 mt-2">
-                          {availableFields.map((field) => (
-                            <FormField
-                              key={field.id}
-                              control={form.control}
-                              name="requestedFields"
-                              render={({ field: formField }) => (
-                                <FormItem className="flex items-center space-x-2">
-                                  <FormControl>
-                                    <Checkbox
-                                      checked={formField.value?.includes(field.id)}
-                                      onCheckedChange={(checked) => {
-                                        const value = formField.value || [];
-                                        if (checked) {
-                                          formField.onChange([...value, field.id]);
-                                        } else {
-                                          formField.onChange(value.filter((id) => id !== field.id));
-                                        }
-                                      }}
-                                    />
-                                  </FormControl>
-                                  <FormLabel className="text-sm font-normal">
-                                    {field.label}
-                                  </FormLabel>
-                                </FormItem>
-                              )}
-                            />
-                          ))}
+                  <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button className="bg-blue-600 hover:bg-blue-700">
+                        <Plus className="w-4 h-4 mr-2" />
+                        New Event Type
+                      </Button>
+                    </DialogTrigger>
+                  </Dialog>
+                </div>
+              </div>
+
+              {/* Event Types Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {/* Basic Vendor Setup Card */}
+                {vendorRequests.map((request) => (
+                  <Card 
+                    key={request.id} 
+                    className="cursor-pointer transition-all hover:shadow-md border border-gray-200"
+                    onClick={() => setSelectedRequestId(request.id)}
+                  >
+                    <CardHeader className="pb-4">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="w-3 h-8 bg-blue-500 rounded-sm mb-3"></div>
+                          <CardTitle className="text-lg font-medium text-gray-900 mb-1">
+                            {request.title}
+                          </CardTitle>
+                          <CardDescription className="text-sm text-gray-600">
+                            {request.fields.length} fields, One-on-One
+                          </CardDescription>
+                        </div>
+                        <Button variant="ghost" size="sm">
+                          <MoreHorizontal className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </CardHeader>
+                    
+                    <CardContent className="pt-0">
+                      <div className="space-y-4">
+                        <p className="text-sm text-blue-600 cursor-pointer hover:underline">
+                          View booking page
+                        </p>
+
+                        {/* Actions */}
+                        <div className="flex space-x-2 pt-2">
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="flex-1"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              copyToClipboard(request.link);
+                            }}
+                          >
+                            <Copy className="w-4 h-4 mr-2" />
+                            Copy link
+                          </Button>
+                          <Button variant="outline" size="sm">
+                            <Settings className="w-4 h-4" />
+                          </Button>
                         </div>
                       </div>
-                      <div className="flex space-x-2 pt-4">
-                        <Button type="button" variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
-                          Cancel
-                        </Button>
-                        <Button type="submit" className="flex-1" disabled={createRequestMutation.isPending}>
-                          {createRequestMutation.isPending ? "Creating..." : "Create Request"}
-                        </Button>
-                      </div>
-                    </form>
-                  </Form>
-                </DialogContent>
-              </Dialog>
+                    </CardContent>
+                  </Card>
+                ))}
+
+                {/* Create New Event Type Card */}
+                <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Card className="border-2 border-dashed border-gray-300 hover:border-blue-400 transition-colors cursor-pointer">
+                      <CardContent className="flex flex-col items-center justify-center py-12">
+                        <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-4">
+                          <Plus className="w-6 h-6 text-gray-600" />
+                        </div>
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">Create new event type</h3>
+                        <p className="text-sm text-gray-600 text-center">
+                          Set up a new onboarding process for your vendors
+                        </p>
+                      </CardContent>
+                    </Card>
+                  </DialogTrigger>
+                </Dialog>
+              </div>
             </div>
           </div>
 
-          {/* Right Panel - Details */}
-          <div className="flex-1 p-6">
-            {selectedRequest ? (
+          {/* Right Panel - Details (slides in when item selected) */}
+          {selectedRequestId && (
+            <div className="w-80 bg-white border-l border-gray-200 p-6 shadow-lg">
               <div className="max-w-md">
                 <div className="mb-6">
                   <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-xl font-semibold text-gray-900">{selectedRequest.title}</h2>
+                    <div>
+                      <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">EVENT TYPE</span>
+                      <h2 className="text-xl font-semibold text-gray-900">{selectedRequest?.title}</h2>
+                    </div>
                     <Button variant="ghost" size="sm" onClick={() => setSelectedRequestId(null)}>
                       ✕
                     </Button>
@@ -335,10 +298,33 @@ export default function Home() {
                 </div>
 
                 <div className="space-y-6">
+                  {/* Duration */}
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-900 mb-2">Duration</h3>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-4 h-4 bg-gray-100 rounded-full flex items-center justify-center">
+                        <span className="text-xs">⏱</span>
+                      </div>
+                      <span className="text-sm text-gray-700">30 min</span>
+                    </div>
+                  </div>
+
+                  {/* Location */}
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-900 mb-2">Location</h3>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-4 h-4 bg-green-100 rounded flex items-center justify-center">
+                        <span className="text-xs text-green-600">📹</span>
+                      </div>
+                      <span className="text-sm text-gray-700">VendorFlow Meet</span>
+                    </div>
+                  </div>
+
+                  {/* Asks for */}
                   <div>
                     <h3 className="text-sm font-medium text-gray-900 mb-3">Asks for:</h3>
                     <div className="space-y-2">
-                      {selectedRequest.fields.map((fieldId) => {
+                      {selectedRequest?.fields.map((fieldId) => {
                         const field = availableFields.find(f => f.id === fieldId);
                         if (!field) return null;
                         const Icon = field.icon;
@@ -354,6 +340,51 @@ export default function Home() {
                     </div>
                   </div>
 
+                  {/* Availability */}
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-900 mb-3">Availability</h3>
+                    <div className="space-y-2">
+                      <div className="text-sm text-gray-600">
+                        <p>Date-range</p>
+                        <p className="mt-1">Invitees can schedule 60 days into the future with at least 4 hours notice</p>
+                      </div>
+                      
+                      <div className="mt-4">
+                        <div className="text-sm text-gray-700 mb-2">
+                          <strong>Schedule:</strong> Working hours (default)
+                        </div>
+                        
+                        <div className="space-y-1 text-xs text-gray-600">
+                          <div className="flex items-center space-x-2">
+                            <span className="w-4 h-4 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs">S</span>
+                            <span>Unavailable</span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <span className="w-4 h-4 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs">M</span>
+                            <span>9:00am - 12:00pm, 1:00pm - 5:00pm</span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <span className="w-4 h-4 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs">T</span>
+                            <span>9:00am - 12:00pm, 1:00pm - 5:00pm</span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <span className="w-4 h-4 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs">W</span>
+                            <span>9:00am - 12:00pm, 1:00pm - 5:00pm</span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <span className="w-4 h-4 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs">T</span>
+                            <span>9:00am - 12:00pm, 1:00pm - 5:00pm</span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <span className="w-4 h-4 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs">F</span>
+                            <span>9:00am - 12:00pm, 1:00pm - 5:00pm</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
                   <div className="pt-6 border-t border-gray-200">
                     <div className="flex items-center space-x-3">
                       <Button 
@@ -370,16 +401,91 @@ export default function Home() {
                   </div>
                 </div>
               </div>
-            ) : (
-              <div className="flex items-center justify-center h-full text-gray-500">
-                <div className="text-center">
-                  <p className="text-lg mb-2">Select an event type</p>
-                  <p className="text-sm">Choose a vendor onboarding flow to view or edit details</p>
-                </div>
-              </div>
-            )}
-          </div>
+            </div>
+          )}
         </main>
+
+        {/* Create New Event Type Dialog */}
+        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Create New Vendor Request</DialogTitle>
+              <DialogDescription>
+                Set up a new onboarding flow for your vendors
+              </DialogDescription>
+            </DialogHeader>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="requesterCompany"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Your Company Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Acme Corporation" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="requesterEmail"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Your Email</FormLabel>
+                      <FormControl>
+                        <Input type="email" placeholder="john@acme.com" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <div>
+                  <FormLabel>Required Information</FormLabel>
+                  <div className="space-y-2 mt-2">
+                    {availableFields.map((field) => (
+                      <FormField
+                        key={field.id}
+                        control={form.control}
+                        name="requestedFields"
+                        render={({ field: formField }) => (
+                          <FormItem className="flex items-center space-x-2">
+                            <FormControl>
+                              <Checkbox
+                                checked={formField.value?.includes(field.id)}
+                                onCheckedChange={(checked) => {
+                                  const value = formField.value || [];
+                                  if (checked) {
+                                    formField.onChange([...value, field.id]);
+                                  } else {
+                                    formField.onChange(value.filter((id) => id !== field.id));
+                                  }
+                                }}
+                              />
+                            </FormControl>
+                            <FormLabel className="text-sm font-normal">
+                              {field.label}
+                            </FormLabel>
+                          </FormItem>
+                        )}
+                      />
+                    ))}
+                  </div>
+                </div>
+                <div className="flex space-x-2 pt-4">
+                  <Button type="button" variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button type="submit" className="flex-1" disabled={createRequestMutation.isPending}>
+                    {createRequestMutation.isPending ? "Creating..." : "Create Request"}
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
