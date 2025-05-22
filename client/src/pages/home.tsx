@@ -137,6 +137,14 @@ export default function Home() {
                 <Users className="w-4 h-4 mr-3" />
                 Vendors
               </Button>
+              <Button 
+                variant="ghost" 
+                className="w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                onClick={() => setLocation('/profile-setup')}
+              >
+                <Settings className="w-4 h-4 mr-3" />
+                Fill out your profile
+              </Button>
               <Button variant="ghost" className="w-full justify-start text-gray-600">
                 <Settings className="w-4 h-4 mr-3" />
                 Settings

@@ -124,7 +124,17 @@ export default function UserOnboarding() {
 
   const handleUserInfoSubmit = (data: UserOnboardingFormData) => {
     form.clearErrors();
-    setStep(2);
+    // Complete signup with just basic info and redirect to dashboard
+    createUserMutation.mutate({
+      ...data,
+      // Provide default values for business info fields
+      legalBusinessName: "",
+      dbaName: "",
+      taxId: "",
+      businessAddress: "",
+      phoneNumber: "",
+      companyEmail: "",
+    });
   };
 
   const handleUploadSelectionNext = () => {

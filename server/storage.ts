@@ -20,6 +20,7 @@ export interface IStorage {
   // User operations (for Replit Auth)
   getUser(id: string): Promise<User | undefined>;
   upsertUser(user: UpsertUser): Promise<User>;
+  updateUserProfile(id: string, profileData: any): Promise<User>;
   
   // Vendor operations
   getVendor(id: number): Promise<Vendor | undefined>;
