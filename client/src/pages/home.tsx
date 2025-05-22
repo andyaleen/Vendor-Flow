@@ -17,10 +17,7 @@ import { createRequestSchema, type CreateRequestFormData } from "@shared/schema"
 import { Plus, Copy, Users, Settings, Filter, MoreHorizontal, Link as LinkIcon, FileText, Building, Mail, Phone, CreditCard, Shield, ChevronDown, LogOut, Home as HomeIcon } from "lucide-react";
 
 const availableFields = [
-  { id: "company_info", label: "Company Legal Information", required: true, icon: Building },
-  { id: "banking", label: "Banking & Payment Details", required: true, icon: CreditCard },
-  { id: "tax_docs", label: "Tax Documentation (W-9)", required: true, icon: FileText },
-  { id: "insurance", label: "Insurance Certificates", required: false, icon: Shield },
+  { id: "company_info", label: "Company Information", required: true, icon: Building },
   { id: "contact_info", label: "Primary Contact Information", required: true, icon: Mail },
 ];
 
@@ -38,9 +35,12 @@ const vendorRequests = [
 
 export default function Home() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [selectedRequestId, setSelectedRequestId] = useState<number | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
   const [, setLocation] = useLocation();
+
+  const selectedRequest = vendorRequests.find(req => req.id === selectedRequestId);
 
   const form = useForm<CreateRequestFormData>({
     resolver: zodResolver(createRequestSchema),
@@ -53,21 +53,25 @@ export default function Home() {
 
   const createRequestMutation = useMutation({
     mutationFn: async (data: CreateRequestFormData) => {
-      const response = await apiRequest("POST", "/api/onboarding-requests", data);
-      return response.json();
-    },
-    onSuccess: (data) => {
-      toast({
-        title: "Vendor request created",
-        description: "Your vendor onboarding link has been generated successfully.",
+      const response = await apiRequest("/api/onboarding-requests", {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers: { "Content-Type": "application/json" },
       });
+      return response;
+    },
+    onSuccess: () => {
       setIsCreateDialogOpen(false);
       form.reset();
-    },
-    onError: (error: any) => {
       toast({
-        title: "Error creating request",
-        description: error.message || "Something went wrong",
+        title: "Request created successfully!",
+        description: "Your vendor onboarding request has been created.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to create vendor request. Please try again.",
         variant: "destructive",
       });
     },
@@ -77,10 +81,10 @@ export default function Home() {
     createRequestMutation.mutate(data);
   };
 
-  const copyToClipboard = (link: string) => {
-    navigator.clipboard.writeText(link);
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
     toast({
-      title: "Link copied",
+      title: "Link copied!",
       description: "The vendor onboarding link has been copied to your clipboard.",
     });
   };
@@ -95,188 +99,52 @@ export default function Home() {
     return field?.label || fieldId;
   };
 
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <CardTitle>Welcome to VendorFlow</CardTitle>
+            <CardDescription>Please sign in to continue</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button 
+              className="w-full" 
+              onClick={() => setLocation('/api/login')}
+            >
+              Sign In
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <button 
-                onClick={() => setLocation("/")}
-                className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
-              >
-                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">V</span>
-                </div>
-                <h1 className="text-xl font-semibold text-gray-900">VendorFlow</h1>
-              </button>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Button variant="ghost" size="sm">
-                <Users className="w-4 h-4 mr-2" />
-                Vendors
-              </Button>
-              
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                    <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
-                      <span className="text-gray-600 text-sm font-medium">
-                        {user?.firstName?.charAt(0) || user?.email?.charAt(0) || "U"}
-                      </span>
-                    </div>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56" align="end" forceMount>
-                  <div className="flex items-center justify-start gap-2 p-2">
-                    <div className="flex flex-col space-y-1 leading-none">
-                      {user?.firstName && user?.lastName && (
-                        <p className="font-medium text-sm">{user.firstName} {user.lastName}</p>
-                      )}
-                      <p className="text-xs leading-none text-muted-foreground">
-                        {user?.email}
-                      </p>
-                    </div>
-                  </div>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => setLocation("/")}>
-                    <HomeIcon className="mr-2 h-4 w-4" />
-                    <span>Home Page</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setLocation("/dashboard")}>
-                    <Settings className="mr-2 h-4 w-4" />
-                    <span>Dashboard</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => window.location.href = "/api/logout"}>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <span>Log out</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+      <div className="flex">
+        {/* Sidebar */}
+        <aside className="w-64 bg-white border-r border-gray-200 min-h-screen">
+          <div className="p-6">
+            <div className="flex items-center space-x-3 mb-8">
+              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                <Building className="w-5 h-5 text-white" />
+              </div>
+              <h1 className="text-xl font-semibold text-gray-900">VendorFlow</h1>
             </div>
           </div>
-        </div>
-      </header>
-
-      {/* Sidebar */}
-      <div className="flex">
-        <aside className="w-64 bg-white border-r border-gray-200 min-h-screen">
-          <nav className="p-6 space-y-2">
-            <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-              <DialogTrigger asChild>
-                <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Create
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-md">
-                <DialogHeader>
-                  <DialogTitle>Create Vendor Request</DialogTitle>
-                  <DialogDescription>
-                    Set up a new vendor onboarding request with the information you need to collect.
-                  </DialogDescription>
-                </DialogHeader>
-                <Form {...form}>
-                  <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-                    <FormField
-                      control={form.control}
-                      name="requesterCompany"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Your Company Name</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Enter your company name" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <FormField
-                      control={form.control}
-                      name="requesterEmail"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Your Email Address</FormLabel>
-                          <FormControl>
-                            <Input type="email" placeholder="Enter your email" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <div>
-                      <FormLabel className="text-sm font-medium">Required Information</FormLabel>
-                      <p className="text-sm text-gray-600 mb-3">
-                        Select what information you need from the vendor
-                      </p>
-                      
-                      <div className="space-y-2">
-                        {availableFields.map((field) => (
-                          <FormField
-                            key={field.id}
-                            control={form.control}
-                            name="requestedFields"
-                            render={({ field: formField }) => (
-                              <FormItem className="flex flex-row items-start space-x-2 space-y-0">
-                                <FormControl>
-                                  <Checkbox
-                                    checked={formField.value?.includes(field.id)}
-                                    disabled={field.required}
-                                    onCheckedChange={(checked) => {
-                                      if (checked) {
-                                        formField.onChange([...formField.value, field.id]);
-                                      } else {
-                                        formField.onChange(
-                                          formField.value?.filter((value) => value !== field.id)
-                                        );
-                                      }
-                                    }}
-                                  />
-                                </FormControl>
-                                <div className="space-y-1 leading-none">
-                                  <FormLabel className="text-sm cursor-pointer">
-                                    {field.label}
-                                    {field.required && <span className="text-red-500 ml-1">*</span>}
-                                  </FormLabel>
-                                </div>
-                              </FormItem>
-                            )}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                    
-                    <div className="flex justify-end space-x-2 pt-4">
-                      <Button 
-                        type="button" 
-                        variant="outline" 
-                        onClick={() => setIsCreateDialogOpen(false)}
-                      >
-                        Cancel
-                      </Button>
-                      <Button 
-                        type="submit" 
-                        className="bg-blue-600 hover:bg-blue-700"
-                        disabled={createRequestMutation.isPending}
-                      >
-                        {createRequestMutation.isPending ? "Creating..." : "Create Request"}
-                      </Button>
-                    </div>
-                  </form>
-                </Form>
-              </DialogContent>
-            </Dialog>
-
-            <div className="space-y-1">
-              <Button variant="ghost" className="w-full justify-start text-blue-600 bg-blue-50">
-                <FileText className="w-4 h-4 mr-3" />
-                Vendor Requests
+          
+          <nav className="px-6">
+            <div className="space-y-2">
+              <Button 
+                variant="ghost" 
+                className="w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                onClick={() => setLocation('/')}
+              >
+                <HomeIcon className="w-4 h-4 mr-3" />
+                Home
               </Button>
-              <Button variant="ghost" className="w-full justify-start text-gray-600">
+              <Button variant="secondary" className="w-full justify-start bg-blue-50 text-blue-700 hover:bg-blue-100">
                 <Users className="w-4 h-4 mr-3" />
                 Vendors
               </Button>
@@ -286,111 +154,230 @@ export default function Home() {
               </Button>
             </div>
           </nav>
+          
+          {/* User Menu */}
+          <div className="absolute bottom-6 left-6 right-6">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="w-full justify-between p-3 h-auto">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+                      <span className="text-sm font-medium text-gray-600">
+                        {user?.firstName?.[0] || user?.email?.[0] || 'U'}
+                      </span>
+                    </div>
+                    <div className="text-left">
+                      <p className="text-sm font-medium text-gray-900">
+                        {user?.firstName && user?.lastName 
+                          ? `${user.firstName} ${user.lastName}`
+                          : user?.firstName || 'User'
+                        }
+                      </p>
+                      <p className="text-xs text-gray-600">{user?.email}</p>
+                    </div>
+                  </div>
+                  <ChevronDown className="w-4 h-4 text-gray-400" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuItem onClick={() => setLocation('/api/logout')}>
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Sign out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 p-8">
-          <div className="max-w-6xl mx-auto">
-            {/* Header */}
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <h1 className="text-2xl font-semibold text-gray-900">Vendor Requests</h1>
-                <p className="text-gray-600 mt-1">Manage your vendor onboarding requests</p>
-              </div>
-              <div className="flex items-center space-x-3">
-                <Button variant="outline" size="sm">
-                  <Filter className="w-4 h-4 mr-2" />
-                  Filter
-                </Button>
-                <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button className="bg-blue-600 hover:bg-blue-700">
-                      <Plus className="w-4 h-4 mr-2" />
-                      New Vendor Request
-                    </Button>
-                  </DialogTrigger>
-                </Dialog>
-              </div>
+        <main className="flex-1 flex">
+          {/* Left Panel - Vendor Requests */}
+          <div className="w-80 p-6 border-r border-gray-200">
+            <div className="mb-6">
+              <h1 className="text-xl font-semibold text-gray-900">Event Types</h1>
+              <p className="text-gray-600 text-sm mt-1">Set up your vendor onboarding flows</p>
             </div>
 
-            {/* Quick Actions */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div className="space-y-3">
               {/* Basic Vendor Setup Card */}
               {vendorRequests.map((request) => (
-                <Card key={request.id} className="border border-gray-200 hover:shadow-md transition-shadow">
-                  <CardHeader className="pb-4">
-                    <div className="flex items-start justify-between">
+                <Card 
+                  key={request.id} 
+                  className={`cursor-pointer transition-all ${
+                    selectedRequestId === request.id 
+                      ? 'border-blue-500 bg-blue-50' 
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                  onClick={() => setSelectedRequestId(request.id)}
+                >
+                  <CardContent className="p-4">
+                    <div className="flex items-start space-x-3">
+                      <div className="w-3 h-8 bg-blue-500 rounded-sm flex-shrink-0"></div>
                       <div className="flex-1">
-                        <CardTitle className="text-lg font-medium text-gray-900 mb-1">
-                          {request.title}
-                        </CardTitle>
-                        <CardDescription className="text-sm text-gray-600">
-                          {request.description}
-                        </CardDescription>
+                        <h3 className="font-medium text-gray-900 text-sm">{request.title}</h3>
+                        <p className="text-xs text-gray-600 mt-1">
+                          {request.fields.length} fields • One-on-One
+                        </p>
                       </div>
-                      <Button variant="ghost" size="sm">
+                      <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100">
                         <MoreHorizontal className="w-4 h-4" />
                       </Button>
-                    </div>
-                  </CardHeader>
-                  
-                  <CardContent className="pt-0">
-                    <div className="space-y-4">
-                      {/* Required Information */}
-                      <div>
-                        <h4 className="text-sm font-medium text-gray-900 mb-2">Required Information</h4>
-                        <div className="space-y-2">
-                          {request.fields.map((fieldId) => {
-                            const IconComponent = getFieldIcon(fieldId);
-                            return (
-                              <div key={fieldId} className="flex items-center text-sm text-gray-600">
-                                <div className="w-4 h-4 bg-blue-100 rounded-sm flex items-center justify-center mr-2">
-                                  <IconComponent className="w-3 h-3 text-blue-600" />
-                                </div>
-                                {getFieldLabel(fieldId)}
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-
-                      {/* Actions */}
-                      <div className="flex space-x-2 pt-2">
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="flex-1"
-                          onClick={() => copyToClipboard(request.link)}
-                        >
-                          <Copy className="w-4 h-4 mr-2" />
-                          Copy link
-                        </Button>
-                        <Button variant="outline" size="sm">
-                          <Settings className="w-4 h-4" />
-                        </Button>
-                      </div>
                     </div>
                   </CardContent>
                 </Card>
               ))}
 
-              {/* Create New Card */}
+              {/* Create New Request Button */}
               <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
                 <DialogTrigger asChild>
-                  <Card className="border-2 border-dashed border-gray-300 hover:border-blue-400 transition-colors cursor-pointer">
-                    <CardContent className="flex flex-col items-center justify-center py-12">
-                      <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mb-4">
-                        <Plus className="w-6 h-6 text-gray-600" />
-                      </div>
-                      <h3 className="text-lg font-medium text-gray-900 mb-2">Create new vendor request</h3>
-                      <p className="text-sm text-gray-600 text-center">
-                        Set up a new onboarding process for your vendors
-                      </p>
-                    </CardContent>
-                  </Card>
+                  <Button
+                    variant="outline"
+                    className="w-full h-auto p-4 border-dashed border-gray-300 hover:border-blue-400 hover:bg-blue-50"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    New Event Type
+                  </Button>
                 </DialogTrigger>
+                <DialogContent className="max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>Create New Vendor Request</DialogTitle>
+                    <DialogDescription>
+                      Set up a new onboarding flow for your vendors
+                    </DialogDescription>
+                  </DialogHeader>
+                  <Form {...form}>
+                    <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+                      <FormField
+                        control={form.control}
+                        name="requesterCompany"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Your Company Name</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Acme Corporation" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="requesterEmail"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Your Email</FormLabel>
+                            <FormControl>
+                              <Input type="email" placeholder="john@acme.com" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <div>
+                        <FormLabel>Required Information</FormLabel>
+                        <div className="space-y-2 mt-2">
+                          {availableFields.map((field) => (
+                            <FormField
+                              key={field.id}
+                              control={form.control}
+                              name="requestedFields"
+                              render={({ field: formField }) => (
+                                <FormItem className="flex items-center space-x-2">
+                                  <FormControl>
+                                    <Checkbox
+                                      checked={formField.value?.includes(field.id)}
+                                      onCheckedChange={(checked) => {
+                                        const value = formField.value || [];
+                                        if (checked) {
+                                          formField.onChange([...value, field.id]);
+                                        } else {
+                                          formField.onChange(value.filter((id) => id !== field.id));
+                                        }
+                                      }}
+                                    />
+                                  </FormControl>
+                                  <FormLabel className="text-sm font-normal">
+                                    {field.label}
+                                  </FormLabel>
+                                </FormItem>
+                              )}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                      <div className="flex space-x-2 pt-4">
+                        <Button type="button" variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+                          Cancel
+                        </Button>
+                        <Button type="submit" className="flex-1" disabled={createRequestMutation.isPending}>
+                          {createRequestMutation.isPending ? "Creating..." : "Create Request"}
+                        </Button>
+                      </div>
+                    </form>
+                  </Form>
+                </DialogContent>
               </Dialog>
             </div>
+          </div>
+
+          {/* Right Panel - Details */}
+          <div className="flex-1 p-6">
+            {selectedRequest ? (
+              <div className="max-w-md">
+                <div className="mb-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-xl font-semibold text-gray-900">{selectedRequest.title}</h2>
+                    <Button variant="ghost" size="sm" onClick={() => setSelectedRequestId(null)}>
+                      ✕
+                    </Button>
+                  </div>
+                  <p className="text-sm text-gray-600">One-on-One</p>
+                </div>
+
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-900 mb-3">Asks for:</h3>
+                    <div className="space-y-2">
+                      {selectedRequest.fields.map((fieldId) => {
+                        const field = availableFields.find(f => f.id === fieldId);
+                        if (!field) return null;
+                        const Icon = field.icon;
+                        return (
+                          <div key={fieldId} className="flex items-center space-x-3 text-sm">
+                            <div className="w-6 h-6 bg-gray-100 rounded flex items-center justify-center">
+                              <Icon className="w-4 h-4 text-gray-600" />
+                            </div>
+                            <span className="text-gray-700">{field.label}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="pt-6 border-t border-gray-200">
+                    <div className="flex items-center space-x-3">
+                      <Button 
+                        variant="outline" 
+                        className="flex-1"
+                        onClick={() => setIsCreateDialogOpen(true)}
+                      >
+                        More options
+                      </Button>
+                      <Button className="flex-1 bg-blue-600 hover:bg-blue-700">
+                        Save changes
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center justify-center h-full text-gray-500">
+                <div className="text-center">
+                  <p className="text-lg mb-2">Select an event type</p>
+                  <p className="text-sm">Choose a vendor onboarding flow to view or edit details</p>
+                </div>
+              </div>
+            )}
           </div>
         </main>
       </div>
