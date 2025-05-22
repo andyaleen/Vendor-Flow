@@ -290,6 +290,27 @@ export default function Onboarding() {
       {/* Progress Indicator */}
       <ProgressIndicator currentStep={currentStep} maxSteps={4} />
 
+      {/* Welcome Section */}
+      {currentStep === 1 && (
+        <div className="bg-white border-b border-neutral-200 py-12">
+          <div className="max-w-2xl mx-auto text-center px-4">
+            <h1 className="text-3xl font-bold text-neutral-900 mb-4">
+              Welcome to Vendor Onboarding
+            </h1>
+            <p className="text-lg text-neutral-600 mb-8">
+              Let's get started by collecting your company information and required documents.
+            </p>
+            <Button 
+              size="lg" 
+              onClick={() => setCurrentStep(2)}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3"
+            >
+              Get Started
+            </Button>
+          </div>
+        </div>
+      )}
+
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Onboarding Request Card */}
         <Card className="mb-8">
