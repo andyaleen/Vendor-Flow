@@ -58,6 +58,21 @@ export class MemStorage implements IStorage {
     this.vendorIdCounter = 1;
     this.requestIdCounter = 1;
     this.documentIdCounter = 1;
+    
+    // Add seed onboarding request for testing
+    const seedRequest: OnboardingRequest = {
+      id: 1,
+      token: "def456",
+      requesterCompany: "Test Company",
+      requesterEmail: "test@company.com",
+      requestedFields: ["company_info", "contact_info"],
+      expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+      currentStep: 1,
+      isCompleted: false,
+      vendorId: null,
+      createdAt: new Date(),
+    };
+    this.onboardingRequests.set("def456", seedRequest);
   }
 
   // User operations for Replit Auth
