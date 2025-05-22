@@ -28,7 +28,7 @@ const vendorRequests = [
     description: "Essential information for new vendors (recommended)",
     fields: ["company_info", "contact_info"],
     createdAt: new Date("2024-01-10"),
-    link: "https://vendorflow.com/onboarding/def456"
+    link: `${window.location.origin}/onboarding/def456`
   }
 ];
 

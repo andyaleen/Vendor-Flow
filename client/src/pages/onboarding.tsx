@@ -5,6 +5,7 @@ import { ProgressIndicator } from "@/components/progress-indicator";
 import { CompanyInfoForm } from "@/components/company-info-form";
 import { DocumentUpload } from "@/components/document-upload";
 import { ReviewSubmit } from "@/components/review-submit";
+import { VendorAuth } from "@/components/vendor-auth";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
@@ -16,6 +17,8 @@ import type { CompanyInfoFormData, OnboardingRequest, Vendor, Document } from "@
 export default function Onboarding() {
   const { token } = useParams<{ token: string }>();
   const [currentStep, setCurrentStep] = useState(1);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [vendorData, setVendorData] = useState<any>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -34,6 +37,12 @@ export default function Onboarding() {
   const request: OnboardingRequest | null = requestData?.request || null;
   const vendor: Vendor | null = requestData?.vendor || null;
   const documents: Document[] = documentsData?.documents || [];
+
+  // Handle vendor authentication
+  const handleVendorAuthenticated = (data: any) => {
+    setIsAuthenticated(true);
+    setVendorData(data);
+  };
 
   // Update current step based on request data
   useEffect(() => {
@@ -176,6 +185,11 @@ export default function Onboarding() {
         </div>
       </div>
     );
+  }
+
+  // Show authentication form if vendor is not authenticated
+  if (!isAuthenticated && request) {
+    return <VendorAuth token={token!} onAuthenticated={handleVendorAuthenticated} />;
   }
 
   if (error || !request) {
