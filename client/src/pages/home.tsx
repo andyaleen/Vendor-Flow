@@ -219,13 +219,13 @@ export default function Home() {
                 {vendorRequests.map((request) => (
                   <Card 
                     key={request.id} 
-                    className="cursor-pointer transition-all hover:shadow-md border border-gray-200"
+                    className="cursor-pointer transition-all hover:shadow-md border border-gray-200 relative overflow-hidden"
                     onClick={() => setSelectedRequestId(request.id)}
                   >
+                    <div className="absolute top-0 left-0 right-0 h-1 bg-blue-500"></div>
                     <CardHeader className="pb-4">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
-                          <div className="w-3 h-8 bg-blue-500 rounded-sm mb-3"></div>
                           <CardTitle className="text-lg font-medium text-gray-900 mb-1">
                             {request.title}
                           </CardTitle>
