@@ -27,17 +27,9 @@ const availableFields = [
 // Mock data for demonstration
 const vendorRequests = [
   {
-    id: 1,
-    title: "Standard Vendor Onboarding",
-    description: "Complete vendor setup with all required documents",
-    fields: ["company_info", "banking", "tax_docs", "contact_info"],
-    createdAt: new Date("2024-01-15"),
-    link: "https://vendorflow.com/onboarding/abc123"
-  },
-  {
     id: 2,
     title: "Basic Vendor Setup",
-    description: "Essential information for new vendors",
+    description: "Essential information for new vendors (recommended)",
     fields: ["company_info", "contact_info"],
     createdAt: new Date("2024-01-10"),
     link: "https://vendorflow.com/onboarding/def456"
@@ -321,8 +313,9 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Vendor Request Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Quick Actions */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              {/* Basic Vendor Setup Card */}
               {vendorRequests.map((request) => (
                 <Card key={request.id} className="border border-gray-200 hover:shadow-md transition-shadow">
                   <CardHeader className="pb-4">
