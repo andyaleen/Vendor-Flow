@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import Landing from "@/pages/landing";
 import Home from "@/pages/home";
 import Onboarding from "@/pages/onboarding";
+import UserOnboarding from "@/pages/user-onboarding";
 import VendorDashboard from "@/pages/vendor-dashboard";
 import NotFound from "@/pages/not-found";
 
@@ -27,6 +28,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Landing} />
+      <Route path="/signup" component={UserOnboarding} />
       <Route path="/dashboard" component={user ? Home : Landing} />
       <Route path="/onboarding/:token" component={Onboarding} />
       <Route path="/vendor-dashboard" component={VendorDashboard} />
