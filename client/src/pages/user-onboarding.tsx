@@ -128,6 +128,7 @@ export default function UserOnboarding() {
 
   const handleUploadSelectionNext = () => {
     // Since Basic Information is always required and selected, always go to step 3
+    console.log('Current step:', step, 'Moving to step 3');
     setStep(3);
   };
 
@@ -237,7 +238,8 @@ export default function UserOnboarding() {
     );
   }
 
-  return (
+  if (step === 2) {
+    return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center p-4">
       <Card className="w-full max-w-2xl">
         <CardHeader className="text-center">
@@ -311,7 +313,8 @@ export default function UserOnboarding() {
         </CardContent>
       </Card>
     </div>
-  );
+    );
+  }
 
   // Step 3: Business Information Form
   return (
