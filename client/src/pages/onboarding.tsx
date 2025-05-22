@@ -8,6 +8,7 @@ import { ReviewSubmit } from "@/components/review-submit";
 import { VendorAuth } from "@/components/vendor-auth";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { getInitials, generateRequestId } from "@/lib/utils";
@@ -248,13 +249,19 @@ export default function Onboarding() {
     );
   }
 
-  const requiredFieldsStatus = [
-    { name: "Company Legal Information", completed: !!vendor },
-    { name: "Banking & Payment Details", completed: !!vendor },
-    { name: "Tax Documentation (W-9)", completed: documents.some(d => d.documentType === "w9") },
-    { name: "Insurance Certificates", completed: documents.some(d => d.documentType === "insurance") },
-    { name: "Primary Contact Information", completed: !!vendor },
-  ];
+  // Map requested fields to display information
+  const fieldMapping: Record<string, { name: string; type: string; completed: boolean }> = {
+    "company_info": { name: "Company Information", type: "form", completed: !!vendor },
+    "contact_info": { name: "Primary Contact Information", type: "form", completed: !!vendor },
+    "banking_info": { name: "Banking & Payment Details", type: "form", completed: !!vendor },
+    "tax_documents": { name: "Tax Documentation (W-9)", type: "document", completed: documents.some(d => d.documentType === "w9") },
+    "insurance_documents": { name: "Insurance Certificates", type: "document", completed: documents.some(d => d.documentType === "insurance") },
+  };
+
+  const requiredFieldsStatus = request.requestedFields.map(fieldId => {
+    const field = fieldMapping[fieldId];
+    return field ? field : { name: fieldId, type: "unknown", completed: false };
+  });
 
   const vendorInitials = vendor?.primaryContactName ? getInitials(vendor.primaryContactName) : "V";
   const vendorName = vendor?.primaryContactName || "Vendor";
@@ -328,9 +335,24 @@ export default function Onboarding() {
                     <CheckCircle className={`mr-3 w-4 h-4 ${field.completed ? 'text-green-500' : 'text-neutral-300'}`} />
                     <span className="text-sm text-neutral-700">{field.name}</span>
                   </div>
-                  <span className={`text-xs font-medium ${field.completed ? 'text-green-600' : 'text-neutral-500'}`}>
-                    {field.completed ? 'Complete' : 'Pending'}
-                  </span>
+                  {field.completed ? (
+                    <span className="text-xs font-medium text-green-600">Complete</span>
+                  ) : (
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="h-6 px-2 text-xs"
+                      onClick={() => {
+                        if (field.type === 'form') {
+                          setCurrentStep(2); // Go to company info form
+                        } else {
+                          setCurrentStep(3); // Go to document upload
+                        }
+                      }}
+                    >
+                      Start
+                    </Button>
+                  )}
                 </div>
               ))}
             </div>
