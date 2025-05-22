@@ -17,10 +17,11 @@ import {
 } from "@shared/schema";
 
 export interface IStorage {
-  // User operations (for Replit Auth)
-  getUser(id: string): Promise<User | undefined>;
-  upsertUser(user: UpsertUser): Promise<User>;
-  updateUserProfile(id: string, profileData: any): Promise<User>;
+  // User operations (JWT Auth)
+  getUserById(id: number): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
+  createUser(user: InsertUser): Promise<User>;
+  updateUser(id: number, updates: Partial<InsertUser>): Promise<User | undefined>;
   
   // Vendor operations
   getVendor(id: number): Promise<Vendor | undefined>;
@@ -42,10 +43,11 @@ export interface IStorage {
 }
 
 export class MemStorage implements IStorage {
-  private users: Map<string, User>;
+  private users: Map<number, User>;
   private vendors: Map<number, Vendor>;
   private onboardingRequests: Map<number, OnboardingRequest>;
   private documents: Map<number, Document>;
+  private userIdCounter: number;
   private vendorIdCounter: number;
   private requestIdCounter: number;
   private documentIdCounter: number;
