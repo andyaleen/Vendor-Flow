@@ -179,9 +179,9 @@ export default function Home() {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 flex">
-          {/* Main Panel - Event Types Grid */}
-          <div className={`${selectedRequestId ? 'flex-1' : 'w-full'} p-8 transition-all duration-300`}>
+        <main className="flex-1 flex relative">
+          {/* Main Panel - Event Types Grid - Fixed width to prevent layout shifts */}
+          <div className="flex-1 p-8">
             <div className="max-w-6xl mx-auto">
               {/* Header */}
               <div className="flex items-center justify-between mb-8">
@@ -286,7 +286,7 @@ export default function Home() {
 
           {/* Right Panel - Details (slides in when item selected) */}
           {selectedRequestId && (
-            <div className="w-80 bg-white border-l border-gray-200 p-6 shadow-lg">
+            <div className="absolute right-0 top-0 bottom-0 w-80 bg-white border-l border-gray-200 p-6 shadow-lg z-10">
               <div className="max-w-md">
                 <div className="mb-6">
                   <div className="flex items-center justify-between mb-4">
