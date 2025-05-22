@@ -125,8 +125,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           primaryContactTitle: validatedData.primaryContactTitle,
           primaryContactEmail: validatedData.primaryContactEmail,
           primaryContactPhone: validatedData.primaryContactPhone,
-          arContactName: validatedData.sameAsASS_PRIMARY ? validatedData.primaryContactName : validatedData.arContactName,
-          arContactEmail: validatedData.sameAssPRIMARY ? validatedData.primaryContactEmail : validatedData.arContactEmail,
+          arContactName: validatedData.sameAsPRIMARY ? validatedData.primaryContactName : validatedData.arContactName,
+          arContactEmail: validatedData.sameAsPRIMARY ? validatedData.primaryContactEmail : validatedData.arContactEmail,
         });
       } else {
         // Create new vendor

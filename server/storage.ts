@@ -62,6 +62,11 @@ export class MemStorage implements IStorage {
     const vendor: Vendor = { 
       ...insertVendor, 
       id,
+      dbaName: insertVendor.dbaName || null,
+      username: insertVendor.username || null,
+      password: insertVendor.password || null,
+      arContactName: insertVendor.arContactName || null,
+      arContactEmail: insertVendor.arContactEmail || null,
       isActive: true
     };
     this.vendors.set(id, vendor);
@@ -126,6 +131,7 @@ export class MemStorage implements IStorage {
     const document: Document = {
       ...insertDocument,
       id,
+      requestId: insertDocument.requestId || null,
       uploadedAt: new Date(),
     };
     this.documents.set(id, document);
