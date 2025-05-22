@@ -78,12 +78,9 @@ export default function UserOnboarding() {
 
   const createUserMutation = useMutation({
     mutationFn: async (data: UserOnboardingFormData) => {
-      return apiRequest("/api/user/setup", {
-        method: "POST",
-        body: JSON.stringify({
-          ...data,
-          selectedUploads,
-        }),
+      return apiRequest("/api/user/setup", "POST", {
+        ...data,
+        selectedUploads,
       });
     },
     onSuccess: () => {

@@ -49,6 +49,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to fetch user" });
     }
   });
+
+  // User setup endpoint for onboarding
+  app.post("/api/user/setup", async (req, res) => {
+    try {
+      const { companyName, firstName, lastName, email, selectedUploads } = req.body;
+      
+      // For now, just return success
+      // In a real app, you'd create the user account here
+      res.json({ 
+        success: true, 
+        message: "User setup completed",
+        user: { companyName, firstName, lastName, email, selectedUploads }
+      });
+    } catch (error) {
+      console.error("Error setting up user:", error);
+      res.status(500).json({ message: "Failed to set up user" });
+    }
+  });
   
   // Create onboarding request
   app.post("/api/onboarding-requests", async (req, res) => {
