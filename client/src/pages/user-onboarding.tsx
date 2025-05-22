@@ -127,12 +127,8 @@ export default function UserOnboarding() {
   };
 
   const handleUploadSelectionNext = () => {
-    if (selectedUploads.includes("basic")) {
-      setStep(3);
-    } else {
-      // Skip business info if basic not selected (shouldn't happen since it's required)
-      handleComplete();
-    }
+    // Since Basic Information is always required and selected, always go to step 3
+    setStep(3);
   };
 
   const handleBusinessInfoSubmit = (data: BusinessInfoFormData) => {
