@@ -232,7 +232,7 @@ export default function Onboarding() {
             
             <Button 
               size="lg"
-              onClick={() => window.location.href = '/vendor-dashboard'}
+              onClick={() => window.location.href = '/'}
               className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3"
             >
               Go to my account
