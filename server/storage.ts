@@ -68,11 +68,11 @@ export class MemStorage implements IStorage {
       requestedFields: ["company_info", "contact_info"],
       expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
       currentStep: 1,
-      isCompleted: false,
+      status: "pending",
       vendorId: null,
-      createdAt: new Date(),
     };
-    this.onboardingRequests.set("def456", seedRequest);
+    this.onboardingRequests.set(1, seedRequest);
+    this.requestIdCounter = 2;
   }
 
   // User operations for Replit Auth
@@ -152,6 +152,8 @@ export class MemStorage implements IStorage {
   }
 
   async getOnboardingRequestByToken(token: string): Promise<OnboardingRequest | undefined> {
+    console.log(`Looking for token: ${token}`);
+    console.log(`Available requests:`, Array.from(this.onboardingRequests.values()));
     return Array.from(this.onboardingRequests.values()).find(
       (request) => request.token === token
     );
