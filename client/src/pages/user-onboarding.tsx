@@ -108,9 +108,10 @@ export default function UserOnboarding() {
     onSuccess: () => {
       toast({
         title: "Welcome to VendorFlow!",
-        description: "Your account has been set up successfully.",
+        description: "Please sign in to access your dashboard.",
       });
-      setLocation("/dashboard");
+      // Redirect to login so user can authenticate and access dashboard
+      window.location.href = "/api/login";
     },
     onError: (error: any) => {
       toast({
@@ -348,7 +349,7 @@ export default function UserOnboarding() {
                 name="dbaName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>DBA (Doing Business As) Name</FormLabel>
+                    <FormLabel>DBA (Doing Business As) Name (optional)</FormLabel>
                     <FormControl>
                       <Input placeholder="Enter DBA name (if applicable)" {...field} />
                     </FormControl>
