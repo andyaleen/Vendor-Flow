@@ -207,14 +207,16 @@ export default function EditEventType() {
                           return (
                             <div key={`${selectedField.fieldId}-${selectedField.subFieldId}`} 
                                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                              <div className="flex items-center justify-between flex-1">
-                                <span className="text-sm font-medium text-gray-900">
+                              <div className="flex items-center flex-1">
+                                <span className="text-sm font-medium text-gray-900 flex-1">
                                   {field.label}
                                 </span>
-                                <div className="flex items-center space-x-3">
+                                <div className="flex-1 flex justify-center">
                                   <Badge variant="secondary" className="bg-gray-200 text-gray-700 text-xs">
                                     {field.type}
                                   </Badge>
+                                </div>
+                                <div className="flex-1 flex justify-end">
                                   {selectedField.required ? (
                                     <Badge variant="default" className="bg-blue-600 text-white text-xs">
                                       Required
