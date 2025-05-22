@@ -175,7 +175,7 @@ export default function EditEventType() {
                   onClick={() => setLocation('/dashboard')}
                   className="mb-4 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
                 >
-                  ← Back to Event Types
+                  ← Back to Onboarding Types
                 </Button>
                 <h1 className="text-2xl font-semibold text-gray-900">Edit Basic Vendor Setup</h1>
                 <p className="text-gray-600 mt-1">Configure what information you want to collect from vendors</p>
