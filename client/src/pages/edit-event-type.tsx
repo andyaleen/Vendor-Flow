@@ -14,21 +14,21 @@ const fieldLibrary = {
     label: "Company Information",
     icon: Building,
     subFields: [
-      { id: "company_name", label: "Company Name", required: true },
-      { id: "legal_business_name", label: "Legal Business Name", required: false },
-      { id: "tax_id", label: "Taxpayer Identification Number", required: false },
-      { id: "business_address", label: "Business Address", required: false },
-      { id: "dba_name", label: "DBA Name", required: false },
+      { id: "company_name", label: "Company Name", type: "text", required: true },
+      { id: "legal_business_name", label: "Legal Business Name", type: "text", required: false },
+      { id: "tax_id", label: "Taxpayer Identification Number", type: "number", required: false },
+      { id: "business_address", label: "Business Address", type: "text", required: false },
+      { id: "dba_name", label: "DBA Name", type: "text", required: false },
     ]
   },
   "contact_info": {
     label: "Primary Contact Information", 
     icon: Mail,
     subFields: [
-      { id: "contact_name", label: "Contact Name", required: true },
-      { id: "contact_email", label: "Contact Email", required: true },
-      { id: "contact_phone", label: "Contact Phone Number", required: false },
-      { id: "contact_title", label: "Contact Title", required: false },
+      { id: "contact_name", label: "Contact Name", type: "text", required: true },
+      { id: "contact_email", label: "Contact Email", type: "email", required: true },
+      { id: "contact_phone", label: "Contact Phone Number", type: "phone", required: false },
+      { id: "contact_title", label: "Contact Title", type: "text", required: false },
     ]
   }
 };
@@ -207,19 +207,24 @@ export default function EditEventType() {
                           return (
                             <div key={`${selectedField.fieldId}-${selectedField.subFieldId}`} 
                                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                              <div className="flex items-center space-x-3">
-                                <span className="text-sm font-medium text-gray-900">
+                              <div className="flex items-center space-x-3 flex-1">
+                                <span className="text-sm font-medium text-gray-900 flex-1">
                                   {field.label}
                                 </span>
-                                {selectedField.required ? (
-                                  <Badge variant="default" className="bg-blue-600 text-white">
-                                    Required
+                                <div className="flex items-center space-x-2">
+                                  <Badge variant="secondary" className="bg-gray-200 text-gray-700 text-xs">
+                                    {field.type}
                                   </Badge>
-                                ) : (
-                                  <Badge variant="outline" className="text-gray-600">
-                                    Optional
-                                  </Badge>
-                                )}
+                                  {selectedField.required ? (
+                                    <Badge variant="default" className="bg-blue-600 text-white text-xs">
+                                      Required
+                                    </Badge>
+                                  ) : (
+                                    <Badge variant="outline" className="text-gray-600 text-xs">
+                                      Optional
+                                    </Badge>
+                                  )}
+                                </div>
                               </div>
                               
                               <div className="flex items-center space-x-2">
