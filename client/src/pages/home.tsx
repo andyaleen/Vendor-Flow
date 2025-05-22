@@ -13,7 +13,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { createRequestSchema, type CreateRequestFormData } from "@shared/schema";
-import { Plus, Copy, Users, Settings, Filter, MoreHorizontal, Building, Mail, ChevronDown, LogOut, Home as HomeIcon } from "lucide-react";
+import { Plus, Copy, Users, Settings, Filter, MoreHorizontal, Building, Mail, ChevronDown, LogOut, Home as HomeIcon, User } from "lucide-react";
 
 const availableFields = [
   { id: "company_info", label: "Company Information", required: true, icon: Building },
@@ -142,7 +142,7 @@ export default function Home() {
                 className="w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                 onClick={() => setLocation('/profile-setup')}
               >
-                <Settings className="w-4 h-4 mr-3" />
+                <User className="w-4 h-4 mr-3" />
                 Fill out your profile
               </Button>
               <Button variant="ghost" className="w-full justify-start text-gray-600">
