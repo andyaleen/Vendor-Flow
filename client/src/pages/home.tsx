@@ -28,7 +28,7 @@ const vendorRequests = [
     description: "Essential information for new vendors (recommended)",
     fields: ["company_info", "contact_info"],
     createdAt: new Date("2024-01-10"),
-    link: `${window.location.origin}/onboarding/1a290749dca6f09ce42d2a935d3bbb7969c2742fa17a88213254cee4e6b5d6ff`
+    link: `${window.location.origin}/onboarding/def456`
   }
 ];
 
