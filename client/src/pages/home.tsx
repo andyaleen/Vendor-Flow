@@ -317,6 +317,19 @@ export default function Home() {
                       })}
                     </div>
                   </div>
+
+                  {/* Edit Button */}
+                  <div className="pt-6">
+                    <Button 
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                      onClick={() => {
+                        // Navigate to edit page for this event type
+                        setLocation(`/edit-event-type/${selectedRequestId}`);
+                      }}
+                    >
+                      Edit
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
