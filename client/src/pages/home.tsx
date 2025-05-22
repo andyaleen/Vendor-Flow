@@ -2,16 +2,19 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 import { apiRequest } from "@/lib/queryClient";
 import { createRequestSchema, type CreateRequestFormData } from "@shared/schema";
-import { Plus, Copy, Users, Settings, Filter, MoreHorizontal, Link as LinkIcon, FileText, Building, Mail, Phone, CreditCard, Shield } from "lucide-react";
+import { Plus, Copy, Users, Settings, Filter, MoreHorizontal, Link as LinkIcon, FileText, Building, Mail, Phone, CreditCard, Shield, ChevronDown, LogOut, Home as HomeIcon } from "lucide-react";
 
 const availableFields = [
   { id: "company_info", label: "Company Legal Information", required: true, icon: Building },
@@ -44,6 +47,8 @@ const vendorRequests = [
 export default function Home() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
+  const [, setLocation] = useLocation();
 
   const form = useForm<CreateRequestFormData>({
     resolver: zodResolver(createRequestSchema),
@@ -105,21 +110,59 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <div className="flex items-center space-x-2">
+              <button 
+                onClick={() => setLocation("/")}
+                className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
+              >
                 <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
                   <span className="text-white font-bold text-sm">V</span>
                 </div>
                 <h1 className="text-xl font-semibold text-gray-900">VendorFlow</h1>
-              </div>
+              </button>
             </div>
             <div className="flex items-center space-x-4">
               <Button variant="ghost" size="sm">
                 <Users className="w-4 h-4 mr-2" />
                 Vendors
               </Button>
-              <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
-                <span className="text-gray-600 text-sm font-medium">JD</span>
-              </div>
+              
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                    <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+                      <span className="text-gray-600 text-sm font-medium">
+                        {user?.firstName?.charAt(0) || user?.email?.charAt(0) || "U"}
+                      </span>
+                    </div>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <div className="flex items-center justify-start gap-2 p-2">
+                    <div className="flex flex-col space-y-1 leading-none">
+                      {user?.firstName && user?.lastName && (
+                        <p className="font-medium text-sm">{user.firstName} {user.lastName}</p>
+                      )}
+                      <p className="text-xs leading-none text-muted-foreground">
+                        {user?.email}
+                      </p>
+                    </div>
+                  </div>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => setLocation("/")}>
+                    <HomeIcon className="mr-2 h-4 w-4" />
+                    <span>Home Page</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setLocation("/dashboard")}>
+                    <Settings className="mr-2 h-4 w-4" />
+                    <span>Dashboard</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => window.location.href = "/api/logout"}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Log out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </div>
