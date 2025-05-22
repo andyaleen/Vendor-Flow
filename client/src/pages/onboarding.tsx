@@ -189,7 +189,7 @@ export default function Onboarding() {
 
   // Show authentication form if vendor is not authenticated
   if (!isAuthenticated && request) {
-    return <VendorAuth token={token!} onAuthenticated={handleVendorAuthenticated} />;
+    return <VendorAuth token={token!} onAuthenticated={handleVendorAuthenticated} request={request} />;
   }
 
   if (error || !request) {

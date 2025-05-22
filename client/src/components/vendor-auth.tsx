@@ -23,9 +23,12 @@ type VendorAuthFormData = z.infer<typeof vendorAuthSchema>;
 interface VendorAuthProps {
   token: string;
   onAuthenticated: (vendorData: any) => void;
+  request?: {
+    requesterCompany: string;
+  };
 }
 
-export function VendorAuth({ token, onAuthenticated }: VendorAuthProps) {
+export function VendorAuth({ token, onAuthenticated, request }: VendorAuthProps) {
   const [isSignUp, setIsSignUp] = useState(false);
   const { toast } = useToast();
 
@@ -72,11 +75,12 @@ export function VendorAuth({ token, onAuthenticated }: VendorAuthProps) {
     <div className="min-h-screen bg-neutral-50 flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center mx-auto mb-4">
-            <span className="text-white font-bold text-lg">V</span>
+          <div className="mx-auto mb-4">
+            <span className="text-2xl font-bold text-blue-600">VendorFlow</span>
           </div>
           <CardTitle className="text-2xl">
-            {isSignUp ? "Create Your Account" : "Welcome Back"}
+            {isSignUp ? "Create Your Account" : 
+             request?.requesterCompany ? `${request.requesterCompany} invites you to onboard as a vendor` : "Welcome Back"}
           </CardTitle>
           <CardDescription>
             {isSignUp 
