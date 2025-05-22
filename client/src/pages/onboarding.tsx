@@ -48,9 +48,14 @@ export default function Onboarding() {
   // Update current step based on request data
   useEffect(() => {
     if (request) {
-      setCurrentStep(request.currentStep || 1);
+      // If vendor hasn't filled out info yet, start at step 1 to show welcome
+      if (!vendor) {
+        setCurrentStep(1);
+      } else {
+        setCurrentStep(request.currentStep || 1);
+      }
     }
-  }, [request]);
+  }, [request, vendor]);
 
   // Company info submission
   const companyInfoMutation = useMutation({
@@ -299,7 +304,7 @@ export default function Onboarding() {
           <p className="text-lg text-neutral-600 mb-8">
             Let's get started by collecting your company information and required documents.
           </p>
-          {currentStep === 1 && (
+          {!vendor && currentStep === 1 && (
             <Button 
               size="lg" 
               onClick={() => setCurrentStep(2)}
