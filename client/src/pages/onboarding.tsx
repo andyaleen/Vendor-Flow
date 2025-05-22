@@ -1,0 +1,380 @@
+import { useState, useEffect } from "react";
+import { useParams } from "wouter";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { ProgressIndicator } from "@/components/progress-indicator";
+import { CompanyInfoForm } from "@/components/company-info-form";
+import { DocumentUpload } from "@/components/document-upload";
+import { ReviewSubmit } from "@/components/review-submit";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
+import { getInitials, generateRequestId } from "@/lib/utils";
+import { AlertCircle, Clock, CheckCircle } from "lucide-react";
+import type { CompanyInfoFormData, OnboardingRequest, Vendor, Document } from "@shared/schema";
+
+export default function Onboarding() {
+  const { token } = useParams<{ token: string }>();
+  const [currentStep, setCurrentStep] = useState(1);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  // Fetch onboarding request data
+  const { data: requestData, isLoading, error } = useQuery({
+    queryKey: [`/api/onboarding-requests/${token}`],
+    enabled: !!token,
+  });
+
+  // Fetch documents
+  const { data: documentsData } = useQuery({
+    queryKey: [`/api/onboarding-requests/${token}/documents`],
+    enabled: !!token,
+  });
+
+  const request: OnboardingRequest | null = requestData?.request || null;
+  const vendor: Vendor | null = requestData?.vendor || null;
+  const documents: Document[] = documentsData?.documents || [];
+
+  // Update current step based on request data
+  useEffect(() => {
+    if (request) {
+      setCurrentStep(request.currentStep || 1);
+    }
+  }, [request]);
+
+  // Company info submission
+  const companyInfoMutation = useMutation({
+    mutationFn: async (data: CompanyInfoFormData) => {
+      const response = await apiRequest("POST", `/api/onboarding-requests/${token}/company-info`, data);
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Company information saved",
+        description: "Your company details have been saved successfully.",
+      });
+      queryClient.invalidateQueries({ queryKey: [`/api/onboarding-requests/${token}`] });
+      updateStep(3);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error saving company information",
+        description: error.message || "Something went wrong",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Document upload
+  const documentUploadMutation = useMutation({
+    mutationFn: async ({ file, documentType }: { file: File; documentType: string }) => {
+      const formData = new FormData();
+      formData.append('document', file);
+      formData.append('documentType', documentType);
+
+      const response = await fetch(`/api/onboarding-requests/${token}/documents`, {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || response.statusText);
+      }
+
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Document uploaded",
+        description: "Your document has been uploaded successfully.",
+      });
+      queryClient.invalidateQueries({ queryKey: [`/api/onboarding-requests/${token}/documents`] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error uploading document",
+        description: error.message || "Something went wrong",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Document deletion
+  const documentDeleteMutation = useMutation({
+    mutationFn: async (documentId: number) => {
+      const response = await apiRequest("DELETE", `/api/documents/${documentId}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/onboarding-requests/${token}/documents`] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error deleting document",
+        description: error.message || "Something went wrong",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Complete onboarding
+  const completeMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest("POST", `/api/onboarding-requests/${token}/complete`);
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Onboarding completed!",
+        description: "Thank you for completing your vendor onboarding.",
+      });
+      setCurrentStep(4);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error completing onboarding",
+        description: error.message || "Something went wrong",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Step update
+  const updateStep = async (step: number) => {
+    try {
+      await apiRequest("PATCH", `/api/onboarding-requests/${token}/step`, { step });
+      setCurrentStep(step);
+    } catch (error) {
+      console.error("Error updating step:", error);
+    }
+  };
+
+  const handleCompanyInfoSubmit = (data: CompanyInfoFormData) => {
+    companyInfoMutation.mutate(data);
+  };
+
+  const handleDocumentUpload = (file: File, documentType: string) => {
+    documentUploadMutation.mutate({ file, documentType });
+  };
+
+  const handleDocumentDelete = (documentId: number) => {
+    documentDeleteMutation.mutate(documentId);
+  };
+
+  const handleComplete = () => {
+    completeMutation.mutate();
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <p className="text-neutral-600">Loading onboarding request...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !request) {
+    return (
+      <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
+        <Card className="w-full max-w-md mx-4">
+          <CardContent className="pt-6">
+            <div className="flex mb-4 gap-2">
+              <AlertCircle className="h-8 w-8 text-red-500" />
+              <h1 className="text-2xl font-bold text-gray-900">Request Not Found</h1>
+            </div>
+            <p className="mt-4 text-sm text-gray-600">
+              The onboarding request could not be found or may have expired.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Check if request is expired
+  if (new Date() > new Date(request.expiresAt)) {
+    return (
+      <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
+        <Card className="w-full max-w-md mx-4">
+          <CardContent className="pt-6">
+            <div className="flex mb-4 gap-2">
+              <Clock className="h-8 w-8 text-yellow-500" />
+              <h1 className="text-2xl font-bold text-gray-900">Request Expired</h1>
+            </div>
+            <p className="mt-4 text-sm text-gray-600">
+              This onboarding request has expired. Please contact the requesting company for a new link.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Check if already completed
+  if (request.status === "completed") {
+    return (
+      <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
+        <Card className="w-full max-w-md mx-4">
+          <CardContent className="pt-6">
+            <div className="flex mb-4 gap-2">
+              <CheckCircle className="h-8 w-8 text-green-500" />
+              <h1 className="text-2xl font-bold text-gray-900">Onboarding Complete</h1>
+            </div>
+            <p className="mt-4 text-sm text-gray-600">
+              Your vendor onboarding has been completed successfully. Thank you!
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  const requiredFieldsStatus = [
+    { name: "Company Legal Information", completed: !!vendor },
+    { name: "Banking & Payment Details", completed: !!vendor },
+    { name: "Tax Documentation (W-9)", completed: documents.some(d => d.documentType === "w9") },
+    { name: "Insurance Certificates", completed: documents.some(d => d.documentType === "insurance") },
+    { name: "Primary Contact Information", completed: !!vendor },
+  ];
+
+  const vendorInitials = vendor?.primaryContactName ? getInitials(vendor.primaryContactName) : "V";
+  const vendorName = vendor?.primaryContactName || "Vendor";
+
+  return (
+    <div className="min-h-screen bg-neutral-50">
+      {/* Header */}
+      <header className="bg-white border-b border-neutral-200 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center">
+              <h1 className="text-xl font-bold text-neutral-800">VendorFlow</h1>
+            </div>
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                  <span className="text-white text-sm font-medium">{vendorInitials}</span>
+                </div>
+                <span className="text-sm text-neutral-700 hidden sm:block">{vendorName}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Progress Indicator */}
+      <ProgressIndicator currentStep={currentStep} maxSteps={4} />
+
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Onboarding Request Card */}
+        <Card className="mb-8">
+          <CardContent className="pt-6">
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <h2 className="text-lg font-semibold text-neutral-800">Vendor Onboarding Request</h2>
+                <p className="mt-1 text-sm text-neutral-600">Complete the following information to establish your vendor profile</p>
+              </div>
+              <Badge variant="secondary" className="bg-blue-50 text-blue-700">
+                <Clock className="w-3 h-3 mr-1" />
+                In Progress
+              </Badge>
+            </div>
+            
+            <div className="bg-neutral-50 rounded-lg p-4 mb-6">
+              <div className="flex items-start">
+                <div className="flex-shrink-0">
+                  <AlertCircle className="text-blue-500 mt-0.5 w-5 h-5" />
+                </div>
+                <div className="ml-3">
+                  <h3 className="text-sm font-medium text-neutral-800">
+                    Request from: <span>{request.requesterCompany}</span>
+                  </h3>
+                  <p className="mt-1 text-sm text-neutral-600">
+                    You've been invited to complete vendor onboarding. This information will be used to establish payment and communication channels.
+                  </p>
+                  <div className="mt-2 text-xs text-neutral-500">
+                    Request ID: <span>{generateRequestId()}</span> • 
+                    Expires: <span>{new Date(request.expiresAt).toLocaleDateString()}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Required Information List */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-medium text-neutral-800 mb-3">Required Information:</h3>
+              
+              {requiredFieldsStatus.map((field, index) => (
+                <div key={index} className="flex items-center justify-between py-2">
+                  <div className="flex items-center">
+                    <CheckCircle className={`mr-3 w-4 h-4 ${field.completed ? 'text-green-500' : 'text-neutral-300'}`} />
+                    <span className="text-sm text-neutral-700">{field.name}</span>
+                  </div>
+                  <span className={`text-xs font-medium ${field.completed ? 'text-green-600' : 'text-neutral-500'}`}>
+                    {field.completed ? 'Complete' : 'Pending'}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Step Content */}
+        {currentStep === 1 && (
+          <Card>
+            <CardContent className="pt-6">
+              <div className="text-center py-12">
+                <h2 className="text-xl font-semibold text-neutral-800 mb-4">Welcome to Vendor Onboarding</h2>
+                <p className="text-neutral-600 mb-8">
+                  Let's get started by collecting your company information and required documents.
+                </p>
+                <button
+                  onClick={() => updateStep(2)}
+                  className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-md transition-colors"
+                >
+                  Get Started
+                </button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {currentStep === 2 && (
+          <CompanyInfoForm
+            onSubmit={handleCompanyInfoSubmit}
+            initialData={vendor || undefined}
+            onNext={() => updateStep(3)}
+            onPrevious={() => updateStep(1)}
+            isLoading={companyInfoMutation.isPending}
+          />
+        )}
+
+        {currentStep === 3 && (
+          <DocumentUpload
+            documents={documents}
+            onUpload={handleDocumentUpload}
+            onDelete={handleDocumentDelete}
+            onNext={() => updateStep(4)}
+            onPrevious={() => updateStep(2)}
+            isUploading={documentUploadMutation.isPending}
+          />
+        )}
+
+        {currentStep === 4 && vendor && (
+          <ReviewSubmit
+            vendor={vendor}
+            documents={documents}
+            request={request}
+            onSubmit={handleComplete}
+            onPrevious={() => updateStep(3)}
+            isSubmitting={completeMutation.isPending}
+          />
+        )}
+      </main>
+    </div>
+  );
+}
