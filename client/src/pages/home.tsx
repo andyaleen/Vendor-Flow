@@ -251,7 +251,11 @@ export default function Home() {
                             <Copy className="w-4 h-4 mr-2" />
                             Copy link
                           </Button>
-                          <Button variant="outline" size="sm">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={(e) => e.stopPropagation()}
+                          >
                             <Settings className="w-4 h-4" />
                           </Button>
                         </div>
