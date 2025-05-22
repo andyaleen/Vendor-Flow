@@ -17,7 +17,11 @@ const fieldLibrary = {
       { id: "company_name", label: "Company Name", type: "text", required: true },
       { id: "legal_business_name", label: "Legal Business Name", type: "text", required: false },
       { id: "tax_id", label: "Taxpayer Identification Number", type: "number", required: false },
-      { id: "business_address", label: "Business Address", type: "text", required: false },
+      { id: "billing_address", label: "Billing Address", type: "address", required: false },
+      { id: "shipping_address", label: "Shipping Address", type: "address", required: false },
+      { id: "payment_terms", label: "Payment Terms", type: "text", required: false },
+      { id: "legal_entity_type", label: "Type of Legal Entity", type: "text", required: false },
+      { id: "year_established", label: "Year Established", type: "number", required: false },
       { id: "dba_name", label: "DBA Name", type: "text", required: false },
     ]
   },
