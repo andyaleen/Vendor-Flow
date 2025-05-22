@@ -141,14 +141,9 @@ export default function Onboarding() {
       return response.json();
     },
     onSuccess: () => {
-      toast({
-        title: "Onboarding completed!",
-        description: "Thank you for completing your vendor onboarding.",
-      });
-      // Redirect to dashboard after completion
-      setTimeout(() => {
-        window.location.href = '/dashboard';
-      }, 2000);
+      // Refresh the request data to get updated status
+      queryClient.invalidateQueries({ queryKey: [`/api/onboarding-requests/${token}`] });
+      setCurrentStep(4);
     },
     onError: (error: any) => {
       toast({
@@ -199,6 +194,53 @@ export default function Onboarding() {
   // Show authentication form if vendor is not authenticated
   if (!isAuthenticated && request) {
     return <VendorAuth token={token!} onAuthenticated={handleVendorAuthenticated} request={request} />;
+  }
+
+  // Show completion screen when onboarding is finished
+  if (request?.status === 'completed') {
+    return (
+      <div className="min-h-screen bg-neutral-50">
+        <header className="bg-white border-b border-neutral-200 px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between py-6">
+            <div className="flex items-center">
+              <h1 className="text-2xl font-bold text-neutral-900">VendorFlow</h1>
+            </div>
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-medium">
+                V
+              </div>
+              <span className="text-sm font-medium text-neutral-700">Vendor</span>
+            </div>
+          </div>
+        </header>
+
+        <main className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <div className="text-center">
+            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <svg className="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            
+            <h1 className="text-3xl font-bold text-neutral-900 mb-4">
+              Onboarding Completed!
+            </h1>
+            
+            <p className="text-lg text-neutral-600 mb-8">
+              Thank you for completing your vendor onboarding. <strong>{request.requesterCompany}</strong> has been notified that your onboarding is finished.
+            </p>
+            
+            <Button 
+              size="lg"
+              onClick={() => window.location.href = '/dashboard'}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3"
+            >
+              Go to my account
+            </Button>
+          </div>
+        </main>
+      </div>
+    );
   }
 
 
