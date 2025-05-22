@@ -234,7 +234,7 @@ export default function Home() {
                     <CardContent className="pt-0">
                       <div className="space-y-4">
                         <p className="text-sm text-blue-600 cursor-pointer hover:underline">
-                          View booking page
+                          View Details
                         </p>
 
                         {/* Actions */}
@@ -298,28 +298,6 @@ export default function Home() {
                 </div>
 
                 <div className="space-y-6">
-                  {/* Duration */}
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-900 mb-2">Duration</h3>
-                    <div className="flex items-center space-x-2">
-                      <div className="w-4 h-4 bg-gray-100 rounded-full flex items-center justify-center">
-                        <span className="text-xs">⏱</span>
-                      </div>
-                      <span className="text-sm text-gray-700">30 min</span>
-                    </div>
-                  </div>
-
-                  {/* Location */}
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-900 mb-2">Location</h3>
-                    <div className="flex items-center space-x-2">
-                      <div className="w-4 h-4 bg-green-100 rounded flex items-center justify-center">
-                        <span className="text-xs text-green-600">📹</span>
-                      </div>
-                      <span className="text-sm text-gray-700">VendorFlow Meet</span>
-                    </div>
-                  </div>
-
                   {/* Asks for */}
                   <div>
                     <h3 className="text-sm font-medium text-gray-900 mb-3">Asks for:</h3>
@@ -337,66 +315,6 @@ export default function Home() {
                           </div>
                         );
                       })}
-                    </div>
-                  </div>
-
-                  {/* Availability */}
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-900 mb-3">Availability</h3>
-                    <div className="space-y-2">
-                      <div className="text-sm text-gray-600">
-                        <p>Date-range</p>
-                        <p className="mt-1">Invitees can schedule 60 days into the future with at least 4 hours notice</p>
-                      </div>
-                      
-                      <div className="mt-4">
-                        <div className="text-sm text-gray-700 mb-2">
-                          <strong>Schedule:</strong> Working hours (default)
-                        </div>
-                        
-                        <div className="space-y-1 text-xs text-gray-600">
-                          <div className="flex items-center space-x-2">
-                            <span className="w-4 h-4 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs">S</span>
-                            <span>Unavailable</span>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <span className="w-4 h-4 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs">M</span>
-                            <span>9:00am - 12:00pm, 1:00pm - 5:00pm</span>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <span className="w-4 h-4 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs">T</span>
-                            <span>9:00am - 12:00pm, 1:00pm - 5:00pm</span>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <span className="w-4 h-4 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs">W</span>
-                            <span>9:00am - 12:00pm, 1:00pm - 5:00pm</span>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <span className="w-4 h-4 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs">T</span>
-                            <span>9:00am - 12:00pm, 1:00pm - 5:00pm</span>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <span className="w-4 h-4 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs">F</span>
-                            <span>9:00am - 12:00pm, 1:00pm - 5:00pm</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div className="pt-6 border-t border-gray-200">
-                    <div className="flex items-center space-x-3">
-                      <Button 
-                        variant="outline" 
-                        className="flex-1"
-                        onClick={() => setIsCreateDialogOpen(true)}
-                      >
-                        More options
-                      </Button>
-                      <Button className="flex-1 bg-blue-600 hover:bg-blue-700">
-                        Save changes
-                      </Button>
                     </div>
                   </div>
                 </div>
