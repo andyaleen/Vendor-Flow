@@ -1,9 +1,34 @@
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
+import session from "express-session";
 import type { Express, RequestHandler } from "express";
 import { storage } from "./storage";
 
 export async function setupGoogleAuth(app: Express) {
+  // Session configuration
+  app.use(session({
+    secret: process.env.SESSION_SECRET || 'your-session-secret-key',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: false, // Set to true in production with HTTPS
+      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    }
+  }));
+
+  // Initialize Passport
+  app.use(passport.initialize());
+  app.use(passport.session());
+
+  // Passport serialization
+  passport.serializeUser((user: any, done) => {
+    done(null, user);
+  });
+
+  passport.deserializeUser((user: any, done) => {
+    done(null, user);
+  });
+
   // Google OAuth Strategy
   passport.use(new GoogleStrategy({
     clientID: process.env.VITE_GOOGLE_CLIENT_ID!,
