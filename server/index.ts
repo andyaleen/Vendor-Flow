@@ -38,8 +38,12 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  // Connect to MongoDB
-  await connectMongoDB();
+  // Try to connect to MongoDB (optional)
+  try {
+    await connectMongoDB();
+  } catch (error) {
+    console.log('MongoDB connection optional - continuing with in-memory storage');
+  }
   
   const server = await registerRoutes(app);
 

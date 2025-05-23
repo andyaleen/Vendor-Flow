@@ -3,13 +3,17 @@ import mongoose from 'mongoose';
 // MongoDB connection configuration
 const connectMongoDB = async () => {
   try {
-    const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/vendorflow';
+    const mongoUri = process.env.MONGODB_URI || "mongodb+srv://andy:J%40nuary25@cluster0.z5txog3.mongodb.net/vendorflow?retryWrites=true&w=majority&appName=Cluster0";
     
     await mongoose.connect(mongoUri, {
-      // Modern Mongoose doesn't need these options, but keeping for compatibility
+      serverApi: {
+        version: '1',
+        strict: true,
+        deprecationErrors: true,
+      }
     });
     
-    console.log('MongoDB connected successfully');
+    console.log('MongoDB Atlas connected successfully!');
     
     // Handle connection events
     mongoose.connection.on('error', (error) => {
