@@ -29,11 +29,16 @@ export async function setupGoogleAuth(app: Express) {
     done(null, user);
   });
 
+  // Get the current domain for callback URL
+  const domain = process.env.REPLIT_DOMAINS?.split(',')[0] || 'localhost:5000';
+  const protocol = domain.includes('replit.') ? 'https' : 'http';
+  const callbackURL = `${protocol}://${domain}/api/auth/google/callback`;
+
   // Google OAuth Strategy
   passport.use(new GoogleStrategy({
     clientID: process.env.VITE_GOOGLE_CLIENT_ID!,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-    callbackURL: "/api/auth/google/callback"
+    callbackURL: callbackURL
   }, async (accessToken, refreshToken, profile, done) => {
     try {
       // Extract user info from Google profile
