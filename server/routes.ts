@@ -40,8 +40,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
   await setupGoogleAuth(app);
 
-  // Auth routes - support both Google and Replit auth
-  app.get('/api/auth/user', (req: any, res) => {
+  // JWT Authentication routes
+  app.post('/api/auth/register', registerUser);
+  app.post('/api/auth/login', loginUser);
+  app.post('/api/auth/vendor-login', loginVendor);
+  app.post('/api/auth/logout', logoutUser);
+
+  // Auth routes - support both Google OAuth and JWT
+  app.get('/api/auth/user', optionalAuth, (req: any, res) => {
     if (!req.isAuthenticated()) {
       return res.status(401).json({ message: "Unauthorized" });
     }
