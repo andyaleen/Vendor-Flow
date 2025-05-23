@@ -23,10 +23,11 @@ export default function Onboarding() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Fetch onboarding request data
+  // Fetch onboarding request data with token validation
   const { data: requestData, isLoading, error } = useQuery({
     queryKey: [`/api/onboarding-requests/${token}`],
     enabled: !!token,
+    retry: false, // Don't retry on expired tokens
   });
 
   // Fetch documents
@@ -191,6 +192,50 @@ export default function Onboarding() {
     );
   }
 
+  // Show expired token screen
+  if (error && error.message?.includes('expired')) {
+    return (
+      <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
+        <Card className="max-w-md mx-auto">
+          <CardContent className="pt-6 text-center">
+            <div className="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
+              <Clock className="w-8 h-8 text-red-500" />
+            </div>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">Request Expired</h2>
+            <p className="text-gray-600 mb-4">
+              This onboarding link has expired. Please contact the requesting company for a new invitation.
+            </p>
+            <Button onClick={() => window.close()} variant="outline">
+              Close Window
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Show error screen for other errors
+  if (error) {
+    return (
+      <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
+        <Card className="max-w-md mx-auto">
+          <CardContent className="pt-6 text-center">
+            <div className="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
+              <AlertCircle className="w-8 h-8 text-red-500" />
+            </div>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">Request Not Found</h2>
+            <p className="text-gray-600 mb-4">
+              This onboarding request could not be found or is no longer valid.
+            </p>
+            <Button onClick={() => window.close()} variant="outline">
+              Close Window
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   // Show authentication form if vendor is not authenticated
   if (!isAuthenticated && request) {
     return <VendorAuth token={token!} onAuthenticated={handleVendorAuthenticated} request={request} />;
@@ -223,20 +268,28 @@ export default function Onboarding() {
             </div>
             
             <h1 className="text-3xl font-bold text-neutral-900 mb-4">
-              Onboarding Completed!
+              You're All Set! 🎉
             </h1>
             
             <p className="text-lg text-neutral-600 mb-8">
               Thank you for completing your vendor onboarding. <strong>{request.requesterCompany}</strong> has been notified that your onboarding is finished.
             </p>
             
-            <Button 
-              size="lg"
-              onClick={() => window.location.href = '/dashboard'}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3"
-            >
-              Go to my account
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button 
+                size="lg"
+                onClick={() => window.location.href = '/dashboard'}
+                className="bg-blue-600 hover:bg-blue-700">
+                Go to My Dashboard
+              </Button>
+              
+              <Button 
+                size="lg" 
+                variant="outline"
+                onClick={() => window.close()}>
+                Close Window
+              </Button>
+            </div>
           </div>
         </main>
       </div>
