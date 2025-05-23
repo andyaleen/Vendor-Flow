@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { authenticateUser, authenticateVendor, optionalAuth } from "./auth";
 import { registerUser, loginUser, loginVendor, getCurrentUser, logoutUser } from "./authRoutes";
-import { setupGoogleAuth, isAuthenticated as isGoogleAuthenticated } from "./googleAuth";
+import { setupGoogleAuth, isAuthenticated } from "./googleAuth";
 import { 
   insertOnboardingRequestSchema, 
   companyInfoSchema,
@@ -38,7 +38,6 @@ const upload = multer({
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
-  await setupAuth(app);
   await setupGoogleAuth(app);
 
   // Auth routes - support both Google and Replit auth
