@@ -405,10 +405,13 @@ export default function Home() {
                   name="requesterCompany"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Your Company Name</FormLabel>
+                      <FormLabel>Name This Onboarding Type</FormLabel>
                       <FormControl>
-                        <Input placeholder="Acme Corporation" {...field} />
+                        <Input placeholder="Standard Vendor Onboarding" {...field} />
                       </FormControl>
+                      <p className="text-xs text-gray-500 mt-1">
+                        This will help you organize different onboarding flows. Vendors won't see this name.
+                      </p>
                       <FormMessage />
                     </FormItem>
                   )}
