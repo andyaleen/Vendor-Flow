@@ -82,6 +82,7 @@ export default function Home() {
   const form = useForm<CreateRequestFormData>({
     resolver: zodResolver(createRequestSchema),
     defaultValues: {
+      onboardingTypeName: "",
       requesterCompany: user?.companyName || "",
       requesterEmail: user?.email || "",
       requestedFields: availableFields.filter(f => f.required).map(f => f.id),
