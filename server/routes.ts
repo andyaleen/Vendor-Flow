@@ -71,7 +71,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Profile update route
-  app.put('/api/user/profile', isAuthenticated, async (req: any, res) => {
+  app.put('/api/user/profile', async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
       const profileData = req.body;
