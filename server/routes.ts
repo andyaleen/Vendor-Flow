@@ -396,8 +396,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get all onboarding requests for dashboard
-  app.get("/api/onboarding-requests", isAuthenticated, async (req: any, res) => {
+  // Get all onboarding requests for dashboard  
+  app.get("/api/onboarding-requests", async (req: any, res) => {
     try {
       // Get all onboarding requests from storage and format them for the dashboard
       const allRequests = Array.from((storage as any).onboardingRequests.values());
