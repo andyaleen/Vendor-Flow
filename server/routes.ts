@@ -110,17 +110,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Create onboarding request
+  // Create onboarding request with secure expiring link
   app.post("/api/onboarding-requests", async (req, res) => {
     try {
       const validatedData = createRequestSchema.parse(req.body);
       
-      // Generate secure token
+      // Generate cryptographically secure token (64 characters)
       const token = randomBytes(32).toString('hex');
       
-      // Set expiration to 30 days from now
+      // Set expiration (default 30 days, configurable)
+      const expirationDays = req.body.expirationDays || 30;
       const expiresAt = new Date();
-      expiresAt.setDate(expiresAt.getDate() + 30);
+      expiresAt.setDate(expiresAt.getDate() + expirationDays);
       
       const request = await storage.createOnboardingRequest({
         token,
@@ -141,7 +142,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get onboarding request by token
+  // Get onboarding request by token with expiration check
   app.get("/api/onboarding-requests/:token", async (req, res) => {
     try {
       const { token } = req.params;
@@ -151,7 +152,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "Onboarding request not found" });
       }
       
-      // Check if expired
+      // Check if the link has expired
+      if (new Date() > request.expiresAt) {
+        return res.status(410).json({ 
+          error: "Onboarding link has expired",
+          expiredAt: request.expiresAt 
+        });
+      }
+      
+      // Check if already completed
+      if (request.status === 'completed') {
+        return res.status(409).json({ 
+          error: "Onboarding has already been completed",
+          completedAt: request.updatedAt 
+        });
+      }
+      
+      // Return the valid request data
       if (new Date() > request.expiresAt) {
         return res.status(410).json({ error: "Onboarding request has expired" });
       }
