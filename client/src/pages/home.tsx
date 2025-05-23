@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -61,17 +61,7 @@ const availableFields = [
   },
 ];
 
-// Mock data for demonstration
-const vendorRequests = [
-  {
-    id: 2,
-    title: "Basic Vendor Setup",
-    description: "Essential information for new vendors (recommended)",
-    fields: ["company_info", "contact_info"],
-    createdAt: new Date("2024-01-10"),
-    link: `${window.location.origin}/onboarding/def456`
-  }
-];
+// We'll fetch real data from the API instead of using mock data
 
 export default function Home() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -79,8 +69,15 @@ export default function Home() {
   const { toast } = useToast();
   const { user } = useAuth();
   const [, setLocation] = useLocation();
+  const queryClient = useQueryClient();
 
-  const selectedRequest = vendorRequests.find(req => req.id === selectedRequestId);
+  // Fetch onboarding requests from API
+  const { data: vendorRequests = [], refetch: refetchRequests } = useQuery({
+    queryKey: ['/api/onboarding-requests'],
+    enabled: !!user,
+  });
+
+  const selectedRequest = vendorRequests.find((req: any) => req.id === selectedRequestId);
 
   const form = useForm<CreateRequestFormData>({
     resolver: zodResolver(createRequestSchema),

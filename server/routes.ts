@@ -396,6 +396,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get all onboarding requests for dashboard
+  app.get("/api/onboarding-requests", authenticateUser, async (req: any, res) => {
+    try {
+      // Get all onboarding requests from storage and format them for the dashboard
+      const allRequests = Array.from((storage as any).onboardingRequests.values());
+      const requests = allRequests.map((request: any) => ({
+        id: request.id,
+        title: request.requesterCompany,
+        description: `${request.requestedFields.length} fields, ${request.status}`,
+        fields: request.requestedFields,
+        createdAt: request.createdAt,
+        link: `${req.protocol}://${req.get('host')}/onboarding/${request.token}`,
+        status: request.status
+      }));
+      
+      res.json(requests);
+    } catch (error: any) {
+      console.error("Error fetching onboarding requests:", error);
+      res.status(500).json({ error: "Failed to fetch onboarding requests" });
+    }
+  });
+
   // One-click vendor information sharing
   app.post("/api/vendors/share", authenticateVendor, async (req: any, res) => {
     try {
