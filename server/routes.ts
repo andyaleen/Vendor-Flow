@@ -396,6 +396,141 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // One-click vendor information sharing
+  app.post("/api/vendors/share", authenticateVendor, async (req: any, res) => {
+    try {
+      const { onboardingToken, shareDocuments = true } = req.body;
+      const vendorId = req.vendor.id;
+
+      // Validate onboarding request exists and is active
+      const onboardingRequest = await storage.getOnboardingRequestByToken(onboardingToken);
+      if (!onboardingRequest) {
+        return res.status(404).json({ error: "Onboarding request not found" });
+      }
+
+      // Check if request is expired
+      if (new Date() > onboardingRequest.expiresAt) {
+        return res.status(410).json({ error: "Onboarding request has expired" });
+      }
+
+      // Check if already completed
+      if (onboardingRequest.status === 'completed') {
+        return res.status(409).json({ error: "Onboarding already completed" });
+      }
+
+      // Get vendor information
+      const vendor = await storage.getVendor(vendorId);
+      if (!vendor) {
+        return res.status(404).json({ error: "Vendor not found" });
+      }
+
+      // Get vendor documents if sharing is enabled
+      let documents = [];
+      if (shareDocuments) {
+        documents = await storage.getDocumentsByVendor(vendorId);
+      }
+
+      // Link vendor to the onboarding request and mark as completed
+      await storage.updateOnboardingRequest(onboardingRequest.id, {
+        vendorId: vendorId,
+        status: 'completed',
+        currentStep: 4
+      });
+
+      res.json({
+        success: true,
+        message: `Information successfully shared with ${onboardingRequest.requesterCompany}`,
+        sharedData: {
+          companyInfo: {
+            companyName: vendor.companyName,
+            dbaName: vendor.dbaName,
+            taxId: vendor.taxId,
+            businessType: vendor.businessType,
+            address: vendor.address,
+            primaryContact: vendor.primaryContact,
+            arContact: vendor.arContact
+          },
+          documentsShared: shareDocuments ? documents.map(doc => ({
+            id: doc.id,
+            documentType: doc.documentType,
+            fileName: doc.fileName,
+            uploadedAt: doc.uploadedAt,
+            status: doc.status
+          })) : [],
+          recipient: onboardingRequest.requesterCompany,
+          sharedAt: new Date()
+        }
+      });
+    } catch (error: any) {
+      console.error("Error sharing vendor information:", error);
+      res.status(500).json({ error: "Failed to share vendor information" });
+    }
+  });
+
+  // Get vendor's sharing history
+  app.get("/api/vendors/sharing-history", authenticateVendor, async (req: any, res) => {
+    try {
+      const vendorId = req.vendor.id;
+      
+      // For now, return empty array - can be enhanced with dedicated storage
+      const sharingHistory = [];
+
+      res.json({
+        success: true,
+        sharingHistory
+      });
+    } catch (error: any) {
+      console.error("Error fetching sharing history:", error);
+      res.status(500).json({ error: "Failed to fetch sharing history" });
+    }
+  });
+
+  // Validate onboarding request for sharing
+  app.get("/api/vendors/validate-share/:token", authenticateVendor, async (req: any, res) => {
+    try {
+      const { token } = req.params;
+
+      const request = await storage.getOnboardingRequestByToken(token);
+      
+      if (!request) {
+        return res.status(404).json({ error: "Onboarding request not found" });
+      }
+
+      // Check if expired
+      if (new Date() > request.expiresAt) {
+        return res.status(410).json({ error: "Onboarding request has expired" });
+      }
+
+      // Check if already completed
+      if (request.status === 'completed') {
+        return res.status(409).json({ error: "Onboarding already completed" });
+      }
+
+      // Get vendor information to show what will be shared
+      const vendor = await storage.getVendor(req.vendor.id);
+      const documents = await storage.getDocumentsByVendor(req.vendor.id);
+
+      res.json({
+        success: true,
+        request: {
+          id: request.id,
+          requesterCompany: request.requesterCompany,
+          requesterEmail: request.requesterEmail,
+          requestedFields: request.requestedFields,
+          expiresAt: request.expiresAt
+        },
+        vendorInfo: {
+          companyName: vendor?.companyName,
+          documentsAvailable: documents.length,
+          documentTypes: documents.map(doc => doc.documentType)
+        }
+      });
+    } catch (error: any) {
+      console.error("Error validating share request:", error);
+      res.status(500).json({ error: "Failed to validate sharing request" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
