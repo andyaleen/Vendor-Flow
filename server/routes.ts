@@ -403,7 +403,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const allRequests = Array.from((storage as any).onboardingRequests.values());
       const requests = allRequests.map((request: any) => ({
         id: request.id,
-        title: request.requesterCompany,
+        title: request.onboardingTypeName || request.requesterCompany,
         description: `${request.requestedFields.length} fields, ${request.status}`,
         fields: request.requestedFields,
         createdAt: request.createdAt,

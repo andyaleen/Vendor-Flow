@@ -401,16 +401,29 @@ export default function Home() {
               <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
                 <FormField
                   control={form.control}
-                  name="requesterCompany"
+                  name="onboardingTypeName"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Name This Onboarding Type</FormLabel>
                       <FormControl>
-                        <Input placeholder="Standard Vendor Onboarding" {...field} />
+                        <Input placeholder="e.g. Basic Vendor, Advanced Vendor, Enterprise Partner, 1099 Contractor" {...field} />
                       </FormControl>
                       <p className="text-xs text-gray-500 mt-1">
                         This will help you organize different onboarding flows. Vendors won't see this name.
                       </p>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="requesterCompany"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Your Company Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Acme Corporation" {...field} />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
