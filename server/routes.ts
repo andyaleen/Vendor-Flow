@@ -4,6 +4,7 @@ import { storage } from "./storage";
 import { authenticateUser, authenticateVendor, optionalAuth } from "./auth";
 import { registerUser, loginUser, loginVendor, getCurrentUser, logoutUser } from "./authRoutes";
 import { setupGoogleAuth, isAuthenticated } from "./googleAuth";
+import { uploadSingle, handleUploadError, getFileInfo, validateDocumentType, deleteUploadedFile } from "./fileUpload";
 import { 
   insertOnboardingRequestSchema, 
   companyInfoSchema,
@@ -237,11 +238,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Upload document
-  app.post("/api/onboarding-requests/:token/documents", upload.single('document'), async (req, res) => {
+  // Upload document with enhanced security and validation
+  app.post("/api/onboarding-requests/:token/documents", uploadSingle, async (req, res) => {
     try {
       const { token } = req.params;
       const { documentType } = req.body;
+      
+      // Validate document type
+      if (!validateDocumentType(documentType)) {
+        return res.status(400).json({ 
+          error: "Invalid document type. Allowed types: w9, insurance, banking, license, certificate, other" 
+        });
+      }
       
       if (!req.file) {
         return res.status(400).json({ error: "No file uploaded" });
@@ -255,21 +263,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!request.vendorId) {
         return res.status(400).json({ error: "Complete company information first" });
       }
+
+      if (request.status === 'completed') {
+        return res.status(400).json({ error: "Onboarding already completed" });
+      }
+
+      if (new Date() > request.expiresAt) {
+        return res.status(400).json({ error: "Onboarding request has expired" });
+      }
+      
+      // Get secure file information
+      const fileInfo = getFileInfo(req.file);
       
       const document = await storage.createDocument({
         vendorId: request.vendorId,
         requestId: request.id,
         documentType,
-        fileName: req.file.originalname,
-        fileSize: req.file.size,
-        mimeType: req.file.mimetype,
+        fileName: fileInfo.fileName,
+        fileSize: fileInfo.size,
+        mimeType: fileInfo.mimeType,
       });
       
-      res.json({ success: true, document });
+      res.json({ 
+        success: true, 
+        document: {
+          ...document,
+          originalName: fileInfo.originalName
+        }
+      });
     } catch (error: any) {
+      // Clean up uploaded file if there was an error
+      if (req.file) {
+        try {
+          await deleteUploadedFile(req.file.filename);
+        } catch (deleteError) {
+          console.error('Error deleting uploaded file:', deleteError);
+        }
+      }
       res.status(400).json({ error: error.message });
     }
   });
+
+  // Add upload error handling middleware
+  app.use("/api/onboarding-requests/:token/documents", handleUploadError);
 
   // Get documents for request
   app.get("/api/onboarding-requests/:token/documents", async (req, res) => {
