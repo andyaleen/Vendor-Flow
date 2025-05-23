@@ -13,11 +13,52 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { createRequestSchema, type CreateRequestFormData } from "@shared/schema";
-import { Plus, Copy, Users, Settings, Filter, MoreHorizontal, Building, Mail, ChevronDown, LogOut, Home as HomeIcon, User } from "lucide-react";
+import { Plus, Copy, Users, Settings, Filter, MoreHorizontal, Building, Mail, ChevronDown, LogOut, Home as HomeIcon, User, FileText, Shield, CreditCard, Award, Info } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const availableFields = [
-  { id: "company_info", label: "Company Information", required: true, icon: Building },
-  { id: "contact_info", label: "Primary Contact Information", required: true, icon: Mail },
+  { 
+    id: "company_info", 
+    label: "Company Information", 
+    required: true, 
+    icon: Building,
+    tooltip: "Basic company details including name, address, and business type"
+  },
+  { 
+    id: "contact_info", 
+    label: "Primary Contact Information", 
+    required: true, 
+    icon: Mail,
+    tooltip: "Main contact person details for business correspondence"
+  },
+  { 
+    id: "w9_tax", 
+    label: "W9 / Tax Documentation", 
+    required: false, 
+    icon: FileText,
+    tooltip: "IRS form for U.S. tax identification and reporting"
+  },
+  { 
+    id: "insurance", 
+    label: "Certificate of Insurance", 
+    required: false, 
+    icon: Shield,
+    tooltip: "Proof of insurance coverage and liability protection"
+  },
+  { 
+    id: "banking", 
+    label: "Banking / ACH Info", 
+    required: false, 
+    icon: CreditCard,
+    tooltip: "Bank details for direct deposit and payment processing"
+  },
+  { 
+    id: "license", 
+    label: "Business License", 
+    required: false, 
+    icon: Award,
+    tooltip: "Official permits and licenses to operate your business"
+  },
 ];
 
 // Mock data for demonstration
@@ -44,8 +85,8 @@ export default function Home() {
   const form = useForm<CreateRequestFormData>({
     resolver: zodResolver(createRequestSchema),
     defaultValues: {
-      requesterCompany: "",
-      requesterEmail: "",
+      requesterCompany: user?.companyName || "",
+      requesterEmail: user?.email || "",
       requestedFields: availableFields.filter(f => f.required).map(f => f.id),
     },
   });
@@ -387,35 +428,55 @@ export default function Home() {
                 />
                 <div>
                   <FormLabel>Required Information</FormLabel>
-                  <div className="space-y-2 mt-2">
-                    {availableFields.map((field) => (
-                      <FormField
-                        key={field.id}
-                        control={form.control}
-                        name="requestedFields"
-                        render={({ field: formField }) => (
-                          <FormItem className="flex items-center space-x-2">
-                            <FormControl>
-                              <Checkbox
-                                checked={formField.value?.includes(field.id)}
-                                onCheckedChange={(checked) => {
-                                  const value = formField.value || [];
-                                  if (checked) {
-                                    formField.onChange([...value, field.id]);
-                                  } else {
-                                    formField.onChange(value.filter((id) => id !== field.id));
-                                  }
-                                }}
-                              />
-                            </FormControl>
-                            <FormLabel className="text-sm font-normal">
-                              {field.label}
-                            </FormLabel>
-                          </FormItem>
-                        )}
-                      />
-                    ))}
-                  </div>
+                  <TooltipProvider>
+                    <div className="space-y-3 mt-3">
+                      {availableFields.map((field) => (
+                        <FormField
+                          key={field.id}
+                          control={form.control}
+                          name="requestedFields"
+                          render={({ field: formField }) => (
+                            <FormItem className="flex items-center space-x-3 p-3 rounded-lg border border-gray-200 hover:border-blue-300 transition-colors">
+                              <FormControl>
+                                <Checkbox
+                                  checked={formField.value?.includes(field.id)}
+                                  disabled={field.required}
+                                  onCheckedChange={(checked) => {
+                                    const value = formField.value || [];
+                                    if (checked) {
+                                      formField.onChange([...value, field.id]);
+                                    } else {
+                                      formField.onChange(value.filter((id) => id !== field.id));
+                                    }
+                                  }}
+                                  className="h-5 w-5"
+                                />
+                              </FormControl>
+                              <div className="flex items-center space-x-2 flex-1">
+                                <field.icon className="h-4 w-4 text-gray-500" />
+                                <FormLabel className="text-sm font-medium cursor-pointer flex-1">
+                                  {field.label}
+                                  {field.required && (
+                                    <span className="ml-1 text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">
+                                      Required
+                                    </span>
+                                  )}
+                                </FormLabel>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Info className="h-4 w-4 text-gray-400 hover:text-gray-600 cursor-help" />
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p className="max-w-xs">{field.tooltip}</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </div>
+                            </FormItem>
+                          )}
+                        />
+                      ))}
+                    </div>
+                  </TooltipProvider>
                 </div>
                 <div className="flex space-x-2 pt-4">
                   <Button type="button" variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
