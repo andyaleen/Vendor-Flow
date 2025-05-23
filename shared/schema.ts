@@ -39,7 +39,8 @@ export const vendors = pgTable("vendors", {
 export const onboardingRequests = pgTable("onboarding_requests", {
   id: serial("id").primaryKey(),
   token: text("token").notNull().unique(),
-  requesterCompany: text("requester_company").notNull(),
+  onboardingTypeName: text("onboarding_type_name").notNull(),
+  requesterCompany: text("requester_company"),
   requesterEmail: text("requester_email").notNull(),
   requestedFields: text("requested_fields").array().notNull(),
   expiresAt: timestamp("expires_at").notNull(),

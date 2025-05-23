@@ -268,7 +268,7 @@ export default function Home() {
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <CardTitle className="text-lg font-medium text-gray-900 mb-1">
-                            {request.title}
+                            {request.onboardingTypeName}
                           </CardTitle>
                           <CardDescription className="text-sm text-gray-600">
                             {request.fields.length} fields, One-on-One
