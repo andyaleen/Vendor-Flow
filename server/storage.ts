@@ -203,17 +203,22 @@ export class MemStorage implements IStorage {
     );
   }
 
-  async createOnboardingRequest(insertRequest: InsertOnboardingRequest): Promise<OnboardingRequest> {
+  async createOnboardingRequest(request: InsertOnboardingRequest): Promise<OnboardingRequest> {
     const id = this.requestIdCounter++;
-    const request: OnboardingRequest = {
-      ...insertRequest,
+    const newRequest: OnboardingRequest = {
       id,
-      vendorId: null,
-      status: "pending",
+      token: request.token,
+      onboardingTypeName: request.onboardingTypeName,  // ✅ Use the actual input
+      requesterCompany: request.requesterCompany,
+      requesterEmail: request.requesterEmail,
+      requestedFields: request.requestedFields,
+      expiresAt: request.expiresAt,
       currentStep: 1,
+      status: "pending",
+      vendorId: null,
     };
-    this.onboardingRequests.set(id, request);
-    return request;
+    this.onboardingRequests.set(id, newRequest);
+    return newRequest;
   }
 
   async updateOnboardingRequest(id: number, updates: Partial<OnboardingRequest>): Promise<OnboardingRequest | undefined> {
