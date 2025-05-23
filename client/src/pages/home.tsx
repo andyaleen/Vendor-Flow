@@ -100,6 +100,8 @@ export default function Home() {
     onSuccess: () => {
       setIsCreateDialogOpen(false);
       form.reset();
+      // Refresh the dashboard to show the new request
+      queryClient.invalidateQueries({ queryKey: ['/api/onboarding-requests'] });
       toast({
         title: "Request created successfully!",
         description: "Your vendor onboarding request has been created.",
