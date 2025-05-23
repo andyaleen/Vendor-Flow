@@ -79,11 +79,51 @@ export class MemStorage implements IStorage {
   }
 
   // User operations for Replit Auth
-  async getUser(id: string): Promise<User | undefined> {
+  // JWT Authentication user methods
+  async getUserById(id: number): Promise<User | undefined> {
     return this.users.get(id);
   }
 
-  async upsertUser(userData: UpsertUser): Promise<User> {
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    return Array.from(this.users.values()).find(u => u.email === email);
+  }
+
+  async createUser(userData: InsertUser): Promise<User> {
+    const user: User = {
+      id: this.userIdCounter++,
+      email: userData.email,
+      password: userData.password,
+      firstName: userData.firstName || null,
+      lastName: userData.lastName || null,
+      companyName: userData.companyName || null,
+      role: userData.role || "company_admin",
+      isEmailVerified: userData.isEmailVerified || false,
+      profileImageUrl: userData.profileImageUrl || null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    this.users.set(user.id, user);
+    return user;
+  }
+
+  async updateUser(id: number, updates: Partial<InsertUser>): Promise<User | undefined> {
+    const user = this.users.get(id);
+    if (!user) {
+      return undefined;
+    }
+    
+    const updatedUser: User = {
+      ...user,
+      ...updates,
+      updatedAt: new Date(),
+    };
+    
+    this.users.set(id, updatedUser);
+    return updatedUser;
+  }
+
+  // Legacy method for backward compatibility
+  async upsertUser(userData: any): Promise<User> {
     const existingUser = this.users.get(userData.id);
     const user: User = {
       ...userData,
