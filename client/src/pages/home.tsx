@@ -274,10 +274,8 @@ export default function Home() {
               {/* Event Types Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {/* Basic Vendor Setup Card */}
-                {vendorRequests.map((request) => {
-                  console.log("🧪 request:", request);
-                  return (
-                    <Card 
+                {vendorRequests.map((request) => (
+                  <Card 
                       key={request.id} 
                       className="cursor-pointer transition-all hover:shadow-md border border-gray-200 relative overflow-hidden"
                       onClick={() => setSelectedRequestId(request.id)}
@@ -290,7 +288,7 @@ export default function Home() {
                             {request.onboardingTypeName}
                           </CardTitle>
                           <CardDescription className="text-sm text-muted-foreground space-y-1">
-                            {(request.requestedFields || []).map((field: string) => (
+                            {(request.fields || []).map((field: string) => (
                               <div key={field} className="capitalize">
                                 • {field.replaceAll("_", " ")}
                               </div>
@@ -334,8 +332,7 @@ export default function Home() {
                       </div>
                     </CardContent>
                   </Card>
-                  );
-                })}
+                ))}
 
                 {/* Create New Event Type Card */}
                 <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
