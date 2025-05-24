@@ -415,19 +415,7 @@ export default function Home() {
                   )}
                 />
 
-                <FormField
-                  control={form.control}
-                  name="requesterEmail"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Your Email</FormLabel>
-                      <FormControl>
-                        <Input type="email" placeholder="john@acme.com" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+
                 <div>
                   <FormLabel>Required Information</FormLabel>
                   <TooltipProvider>

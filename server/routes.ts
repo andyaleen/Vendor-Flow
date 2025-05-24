@@ -127,7 +127,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         token,
         onboardingTypeName: validatedData.onboardingTypeName,
         requesterCompany: (req.user as any)?.companyName || (req.user as any)?.firstName + " " + (req.user as any)?.lastName || "Your Company",
-        requesterEmail: validatedData.requesterEmail,
+        requesterEmail: (req.user as any)?.email || "user@company.com",
         requestedFields: validatedData.requestedFields,
         expiresAt,
       });
