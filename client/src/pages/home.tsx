@@ -391,7 +391,7 @@ export default function Home() {
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogContent className="max-w-md">
             <DialogHeader>
-              <DialogTitle>Create New Vendor Request</DialogTitle>
+              <DialogTitle>Create New Onboarding Type</DialogTitle>
               <DialogDescription>
                 Set up a new onboarding flow for your vendors
               </DialogDescription>
