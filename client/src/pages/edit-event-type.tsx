@@ -172,8 +172,8 @@ export default function EditEventType() {
                   // Clear authentication data
                   localStorage.removeItem("auth_token");
                   sessionStorage.removeItem("auth_token");
-                  // Redirect to proper logout endpoint to clear Google session
-                  window.location.href = "/api/logout";
+                  // Redirect to landing page
+                  window.location.href = "/";
                 }}>
                   <LogOut className="w-4 h-4 mr-2" />
                   Sign out
