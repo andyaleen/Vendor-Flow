@@ -55,13 +55,13 @@ export async function loginUser(req: Request, res: Response) {
     // Find user by email
     const user = await storage.getUserByEmail(validatedData.email);
     if (!user) {
-      return res.status(401).json({ message: 'Invalid email or password' });
+      return res.status(404).json({ error: "No account found with this email. Please sign up." });
     }
 
     // Check password
     const isPasswordValid = await comparePassword(validatedData.password, user.password);
     if (!isPasswordValid) {
-      return res.status(401).json({ message: 'Invalid email or password' });
+      return res.status(401).json({ error: "Incorrect password. Please try again." });
     }
 
     // Generate JWT token
@@ -92,14 +92,18 @@ export async function loginVendor(req: Request, res: Response) {
     
     // Find vendor by username
     const vendor = await storage.getVendorByUsername(validatedData.username);
-    if (!vendor || !vendor.password) {
-      return res.status(401).json({ message: 'Invalid username or password' });
+    if (!vendor) {
+      return res.status(404).json({ error: "No vendor account found. Please create an account." });
+    }
+    
+    if (!vendor.password) {
+      return res.status(401).json({ error: "Account exists but no password set. Please contact support." });
     }
 
     // Check password
     const isPasswordValid = await comparePassword(validatedData.password, vendor.password);
     if (!isPasswordValid) {
-      return res.status(401).json({ message: 'Invalid username or password' });
+      return res.status(401).json({ error: "Incorrect password. Please try again." });
     }
 
     // Generate JWT token
