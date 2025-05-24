@@ -168,7 +168,13 @@ export default function EditEventType() {
                   Switch Account
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => setLocation('/api/logout')}>
+                <DropdownMenuItem onClick={() => {
+                  // Clear authentication data
+                  localStorage.removeItem("auth_token");
+                  sessionStorage.removeItem("auth_token");
+                  // Redirect to landing page
+                  window.location.href = "/";
+                }}>
                   <LogOut className="w-4 h-4 mr-2" />
                   Sign out
                 </DropdownMenuItem>
