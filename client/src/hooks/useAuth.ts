@@ -8,6 +8,17 @@ export function useAuth() {
     refetchOnMount: true,
     refetchInterval: false,
     staleTime: 1000 * 60 * 5, // 5 minutes
+    queryFn: async () => {
+      const response = await fetch("/api/auth/user", {
+        credentials: "include", // Important for session cookies
+      });
+      
+      if (!response.ok) {
+        throw new Error("Not authenticated");
+      }
+      
+      return response.json();
+    },
   });
 
   return {
