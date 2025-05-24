@@ -83,7 +83,6 @@ export default function Home() {
     resolver: zodResolver(createRequestSchema),
     defaultValues: {
       onboardingTypeName: "",
-      requesterCompany: user?.companyName || "",
       requesterEmail: user?.email || "",
       requestedFields: availableFields.filter(f => f.required).map(f => f.id),
     },
@@ -416,19 +415,7 @@ export default function Home() {
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="requesterCompany"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Your Company Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Acme Corporation" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+
                 <FormField
                   control={form.control}
                   name="requesterEmail"
