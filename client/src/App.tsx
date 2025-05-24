@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
 import Landing from "@/pages/landing";
+import Login from "@/pages/login";
 import Home from "@/pages/home";
 import Onboarding from "@/pages/onboarding";
 import UserOnboarding from "@/pages/user-onboarding";
@@ -30,10 +31,11 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Landing} />
+      <Route path="/login" component={Login} />
       <Route path="/signup" component={UserOnboarding} />
-      <Route path="/dashboard" component={user ? Home : Landing} />
-      <Route path="/profile-setup" component={user ? ProfileSetup : Landing} />
-      <Route path="/edit-event-type/:id" component={user ? EditEventType : Landing} />
+      <Route path="/dashboard" component={user ? Home : Login} />
+      <Route path="/profile-setup" component={user ? ProfileSetup : Login} />
+      <Route path="/edit-event-type/:id" component={user ? EditEventType : Login} />
       <Route path="/onboarding/:token" component={Onboarding} />
 
       <Route component={NotFound} />

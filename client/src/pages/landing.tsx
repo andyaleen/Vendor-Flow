@@ -61,13 +61,13 @@ export default function Landing() {
               <Button 
                 variant="ghost" 
                 size="sm"
-                onClick={() => window.location.href = '/api/auth/google'}
+                onClick={() => setLocation('/login')}
               >
                 Log in
               </Button>
               <Button 
                 className="bg-blue-600 hover:bg-blue-700 text-white"
-                onClick={() => window.location.href = '/api/auth/google'}
+                onClick={() => setLocation('/login')}
               >
                 Get started
               </Button>
