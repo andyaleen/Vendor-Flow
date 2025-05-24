@@ -287,17 +287,12 @@ export default function Home() {
                           <CardTitle className="text-lg font-medium text-gray-900 mb-1">
                             {request.onboardingTypeName}
                           </CardTitle>
-                          <CardDescription className="text-sm text-muted-foreground">
-                            {(request.requestedFields || []).slice(0, 3).map((field: string) => (
+                          <CardDescription className="text-sm text-muted-foreground space-y-1">
+                            {(request.requestedFields || []).map((field: string) => (
                               <div key={field} className="capitalize">
                                 • {field.replaceAll("_", " ")}
                               </div>
                             ))}
-                            {(request.requestedFields || []).length > 3 && (
-                              <div className="text-xs text-muted-foreground">
-                                +{(request.requestedFields || []).length - 3} more
-                              </div>
-                            )}
                           </CardDescription>
                         </div>
                         <Button variant="ghost" size="sm">
