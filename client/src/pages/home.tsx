@@ -288,14 +288,14 @@ export default function Home() {
                             {request.onboardingTypeName}
                           </CardTitle>
                           <CardDescription className="text-sm text-muted-foreground">
-                            {request.requestedFields.slice(0, 3).map((field: string) => (
+                            {(request.requestedFields || []).slice(0, 3).map((field: string) => (
                               <div key={field} className="capitalize">
                                 • {field.replaceAll("_", " ")}
                               </div>
                             ))}
-                            {request.requestedFields.length > 3 && (
+                            {(request.requestedFields || []).length > 3 && (
                               <div className="text-xs text-muted-foreground">
-                                +{request.requestedFields.length - 3} more
+                                +{(request.requestedFields || []).length - 3} more
                               </div>
                             )}
                           </CardDescription>
