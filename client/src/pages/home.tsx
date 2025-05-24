@@ -83,7 +83,6 @@ export default function Home() {
     resolver: zodResolver(createRequestSchema),
     defaultValues: {
       onboardingTypeName: "",
-      requesterEmail: user?.email || "",
       requestedFields: availableFields.filter(f => f.required).map(f => f.id),
     },
   });

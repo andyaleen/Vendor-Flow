@@ -111,7 +111,6 @@ export const companyInfoSchema = z.object({
 
 export const createRequestSchema = z.object({
   onboardingTypeName: z.string().min(1, "Onboarding type name is required"),
-  requesterEmail: z.string().email("Valid email is required"),
   requestedFields: z.array(z.string()).min(1, "At least one field is required"),
 });
 
