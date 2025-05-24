@@ -9,6 +9,7 @@ import Login from "@/pages/login";
 import Home from "@/pages/home";
 import Onboarding from "@/pages/onboarding";
 import UserOnboarding from "@/pages/user-onboarding";
+import LoggedOut from "@/pages/logged-out";
 
 import EditEventType from "@/pages/edit-event-type";
 import ProfileSetup from "@/pages/profile-setup";
@@ -33,6 +34,7 @@ function Router() {
       <Route path="/" component={Landing} />
       <Route path="/login" component={Login} />
       <Route path="/signup" component={UserOnboarding} />
+      <Route path="/logged-out" component={LoggedOut} />
       <Route path="/dashboard" component={user ? Home : Login} />
       <Route path="/profile-setup" component={user ? ProfileSetup : Login} />
       <Route path="/edit-event-type/:id" component={user ? EditEventType : Login} />

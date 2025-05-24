@@ -142,6 +142,15 @@ export async function getCurrentUser(req: AuthRequest, res: Response) {
 }
 
 export async function logoutUser(req: Request, res: Response) {
-  // With JWT, logout is handled client-side by removing the token
-  res.json({ message: 'Logged out successfully' });
+  // Clear session data for Google OAuth
+  if (req.logout) {
+    req.logout(() => {});
+  }
+  
+  if (req.session) {
+    req.session.destroy(() => {});
+  }
+
+  // Redirect to logged out confirmation page
+  res.redirect("/logged-out");
 }

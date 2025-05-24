@@ -169,11 +169,13 @@ export default function EditEventType() {
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => {
-                  // Clear authentication data
-                  localStorage.removeItem("auth_token");
-                  sessionStorage.removeItem("auth_token");
-                  // Redirect to landing page
-                  window.location.href = "/";
+                  // Use proper logout endpoint that clears Google OAuth session
+                  fetch("/api/auth/logout", {
+                    method: "GET",
+                    credentials: "include",
+                  }).then(() => {
+                    window.location.href = "/logged-out";
+                  });
                 }}>
                   <LogOut className="w-4 h-4 mr-2" />
                   Sign out
