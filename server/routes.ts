@@ -405,6 +405,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const requests = allRequests.map((request: any) => ({
         id: request.id,
         title: request.onboardingTypeName || request.requesterCompany,
+        onboardingTypeName: request.onboardingTypeName || request.requesterCompany,
         description: `${request.requestedFields.length} fields, ${request.status}`,
         fields: request.requestedFields,
         createdAt: request.createdAt,
