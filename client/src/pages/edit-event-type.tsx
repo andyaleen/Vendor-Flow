@@ -4,9 +4,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/useAuth";
-import { Building, Mail, Phone, CreditCard, FileText, X, Plus, Users, Settings, ChevronDown, LogOut, Home as HomeIcon } from "lucide-react";
+import { Building, Mail, Phone, CreditCard, FileText, X, Plus, Users, User, Settings, ChevronDown, LogOut, Home as HomeIcon } from "lucide-react";
 
 // Define all available field options
 const fieldLibrary = {
@@ -154,7 +154,20 @@ export default function EditEventType() {
                   <ChevronDown className="w-4 h-4 text-gray-400" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuContent side="top" align="start" sideOffset={8} className="w-56">
+                <DropdownMenuItem onClick={() => setLocation('/profile')}>
+                  <User className="w-4 h-4 mr-2" />
+                  My Profile
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setLocation('/settings')}>
+                  <Settings className="w-4 h-4 mr-2" />
+                  Settings
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setLocation('/switch-account')}>
+                  <Users className="w-4 h-4 mr-2" />
+                  Switch Account
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => setLocation('/api/logout')}>
                   <LogOut className="w-4 h-4 mr-2" />
                   Sign out

@@ -9,11 +9,11 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { createRequestSchema, type CreateRequestFormData } from "@shared/schema";
-import { Plus, Copy, Users, Settings, Filter, MoreHorizontal, Building, Mail, ChevronDown, LogOut, Home as HomeIcon, User, FileText, Shield, CreditCard, Award, Info } from "lucide-react";
+import { Plus, Copy, Users, Settings, Filter, MoreHorizontal, Building, Mail, ChevronDown, LogOut, Home as HomeIcon, User, UserCheck, FileText, Shield, CreditCard, Award, Info } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const availableFields = [
@@ -215,7 +215,20 @@ export default function Home() {
                   <ChevronDown className="w-4 h-4 text-gray-400" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuContent side="top" align="start" sideOffset={8} className="w-56">
+                <DropdownMenuItem onClick={() => setLocation('/profile')}>
+                  <User className="w-4 h-4 mr-2" />
+                  My Profile
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setLocation('/settings')}>
+                  <Settings className="w-4 h-4 mr-2" />
+                  Settings
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setLocation('/switch-account')}>
+                  <Users className="w-4 h-4 mr-2" />
+                  Switch Account
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => setLocation('/api/logout')}>
                   <LogOut className="w-4 h-4 mr-2" />
                   Sign out
