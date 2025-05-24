@@ -208,7 +208,7 @@ export class MemStorage implements IStorage {
     const newRequest: OnboardingRequest = {
       id,
       token: request.token,
-      onboardingTypeName: request.onboardingTypeName,  // ✅ Use the actual input
+      onboardingTypeName: request.onboardingTypeName,  // ✅ THIS is the only version that should exist
       requesterCompany: request.requesterCompany,
       requesterEmail: request.requesterEmail,
       requestedFields: request.requestedFields,
@@ -220,6 +220,7 @@ export class MemStorage implements IStorage {
     this.onboardingRequests.set(id, newRequest);
     return newRequest;
   }
+
 
   async updateOnboardingRequest(id: number, updates: Partial<OnboardingRequest>): Promise<OnboardingRequest | undefined> {
     const request = this.onboardingRequests.get(id);
