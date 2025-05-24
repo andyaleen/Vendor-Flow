@@ -48,9 +48,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/auth/logout', logoutUser);
 
   // Auth routes - support both Google OAuth and JWT
-  app.get('/api/auth/user', optionalAuth, (req: any, res) => {
+  app.get('/api/auth/user', (req: any, res) => {
     if (!req.isAuthenticated()) {
-      return res.status(401).json({ message: "Unauthorized" });
+      return res.json(null); // Return null instead of 401 error
     }
 
     try {
@@ -70,10 +70,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      res.status(401).json({ message: "Unauthorized" });
+      res.json(null); // Return null instead of error
     } catch (error) {
       console.error("Error fetching user:", error);
-      res.status(500).json({ message: "Failed to fetch user" });
+      res.json(null); // Return null even on error to prevent loops
     }
   });
 
