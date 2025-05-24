@@ -5,16 +5,15 @@ export function useAuth() {
     queryKey: ["/api/auth/user"],
     retry: false,
     refetchOnWindowFocus: false,
-    refetchOnMount: false,
+    refetchOnMount: true,
     refetchInterval: false,
-    staleTime: Infinity,
-    enabled: false, // Disable automatic auth checking for now
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
   return {
-    user: null, // Force unauthenticated state
-    isLoading: false,
-    isAuthenticated: false,
+    user,
+    isLoading,
+    isAuthenticated: !!user,
     error,
   };
 }
