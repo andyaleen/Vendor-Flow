@@ -126,7 +126,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const request = await storage.createOnboardingRequest({
         token,
         onboardingTypeName: validatedData.onboardingTypeName,
-        requesterCompany: req.user?.companyName || "Default Company",
+        requesterCompany: (req.user as any)?.companyName || (req.user as any)?.firstName + " " + (req.user as any)?.lastName || "Your Company",
         requesterEmail: validatedData.requesterEmail,
         requestedFields: validatedData.requestedFields,
         expiresAt,
