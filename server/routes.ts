@@ -38,43 +38,11 @@ const upload = multer({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Auth middleware
-  await setupGoogleAuth(app);
+  // Auth middleware removed - switching to Supabase
 
-  // JWT Authentication routes
-  app.post('/api/auth/register', registerUser);
-  app.post('/api/auth/login', loginUser);
-  app.post('/api/auth/vendor-login', loginVendor);
-  app.post('/api/auth/logout', logoutUser);
-
-  // Auth routes - support both Google OAuth and JWT
+  // Simple auth endpoint - will be replaced with Supabase
   app.get('/api/auth/user', (req: any, res) => {
-    if (!req.isAuthenticated()) {
-      return res.json(null); // Return null instead of 401 error
-    }
-
-    try {
-      // Handle Google OAuth user (direct user object)
-      if (req.user && !req.user.claims) {
-        return res.json(req.user);
-      }
-      
-      // Handle Replit OAuth user (has claims)
-      if (req.user && req.user.claims) {
-        return res.json({
-          id: req.user.claims.sub,
-          email: req.user.claims.email,
-          firstName: req.user.claims.first_name,
-          lastName: req.user.claims.last_name,
-          profileImageUrl: req.user.claims.profile_image_url
-        });
-      }
-
-      res.json(null); // Return null instead of error
-    } catch (error) {
-      console.error("Error fetching user:", error);
-      res.json(null); // Return null even on error to prevent loops
-    }
+    res.json(null); // No auth until Supabase is set up
   });
 
   // Profile update route
