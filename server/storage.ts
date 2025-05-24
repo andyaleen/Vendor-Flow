@@ -66,7 +66,7 @@ export class MemStorage implements IStorage {
     const seedRequest: OnboardingRequest = {
       id: 1,
       token: "def456",
-      onboardingTypeName: "Basic Vendor Setup",
+      // onboardingTypeName: "Basic Vendor Setup", // Removed hardcoded value
       requesterCompany: "Test Company",
       requesterEmail: "test@company.com",
       requestedFields: ["company_info", "contact_info"],
