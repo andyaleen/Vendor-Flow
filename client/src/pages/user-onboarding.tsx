@@ -14,7 +14,7 @@ import { z } from "zod";
 import { Building, FileText, Shield, CreditCard, FileCheck, CheckCircle } from "lucide-react";
 
 const userOnboardingSchema = z.object({
-  companyName: z.string().min(1, "Company name is required"),
+  // removed companyName
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().min(1, "Last name is required"),
   email: z.string().email("Please enter a valid email address"),

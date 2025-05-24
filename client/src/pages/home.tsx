@@ -257,9 +257,7 @@ export default function Home() {
               {/* Event Types Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {/* Basic Vendor Setup Card */}
-                {vendorRequests.map((request) => {
-                  console.log("🧪 request:", request);
-                  return (
+                {vendorRequests.map((request) => (
                   <Card 
                     key={request.id} 
                     className="cursor-pointer transition-all hover:shadow-md border border-gray-200 relative overflow-hidden"
@@ -313,8 +311,7 @@ export default function Home() {
                       </div>
                     </CardContent>
                   </Card>
-                  );
-                })}
+                ))}
 
                 {/* Create New Event Type Card */}
                 <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
