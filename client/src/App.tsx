@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
 import Landing from "@/pages/landing";
 import Login from "@/pages/login";
+import Signup from "@/pages/signup";
 import Home from "@/pages/home";
 import Onboarding from "@/pages/onboarding";
 import UserOnboarding from "@/pages/user-onboarding";
@@ -33,7 +34,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Landing} />
       <Route path="/login" component={Login} />
-      <Route path="/signup" component={UserOnboarding} />
+      <Route path="/signup" component={Signup} />
       <Route path="/logged-out" component={LoggedOut} />
       <Route path="/dashboard" component={user ? Home : Login} />
       <Route path="/profile-setup" component={user ? ProfileSetup : Login} />
