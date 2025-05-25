@@ -4,6 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useLocation } from "wouter";
 import { useEffect } from "react";
 import { Building, ArrowLeft } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 export default function Login() {
   const { user, isLoading } = useAuth();
@@ -75,18 +76,15 @@ export default function Login() {
                 const email = e.currentTarget.email.value;
                 const password = e.currentTarget.password.value;
 
-                const res = await fetch("/api/auth/login", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  credentials: "include",
-                  body: JSON.stringify({ email, password }),
+                const { error } = await supabase.auth.signInWithPassword({
+                  email,
+                  password,
                 });
 
-                if (res.ok) {
-                  setLocation("/dashboard");
+                if (error) {
+                  alert(error.message);
                 } else {
-                  const data = await res.json();
-                  alert(data.error || "Login failed. Please try again.");
+                  setLocation("/dashboard");
                 }
               }}
               className="space-y-4"
@@ -122,7 +120,17 @@ export default function Login() {
               
               <Button 
                 className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white"
-                onClick={() => window.location.href = '/api/auth/google'}
+                onClick={async () => {
+                  const { error } = await supabase.auth.signInWithOAuth({
+                    provider: 'google',
+                    options: {
+                      redirectTo: `${window.location.origin}/dashboard`
+                    }
+                  });
+                  if (error) {
+                    alert(error.message);
+                  }
+                }}
               >
                 <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
                   <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>

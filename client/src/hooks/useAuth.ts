@@ -1,30 +1,32 @@
-import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
+import type { User } from "@supabase/supabase-js";
 
 export function useAuth() {
-  const { data: user, isLoading, error } = useQuery({
-    queryKey: ["/api/auth/user"],
-    retry: false,
-    refetchOnWindowFocus: false,
-    refetchOnMount: true,
-    refetchInterval: false,
-    staleTime: 1000 * 60 * 5, // 5 minutes
-    queryFn: async () => {
-      const response = await fetch("/api/auth/user", {
-        credentials: "include", // Important for session cookies
-      });
-      
-      if (!response.ok) {
-        throw new Error("Not authenticated");
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      setIsLoading(false);
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setUser(session?.user ?? null);
+        setIsLoading(false);
       }
-      
-      return response.json();
-    },
-  });
+    );
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   return {
     user,
     isLoading,
     isAuthenticated: !!user,
-    error,
   };
 }
