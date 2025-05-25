@@ -45,11 +45,36 @@ export function VendorAuth({ token, onAuthenticated, request }: VendorAuthProps)
 
   const authMutation = useMutation({
     mutationFn: async (data: VendorAuthFormData) => {
-      const endpoint = isSignUp ? "signup" : "login";
-      return apiRequest("POST", `/api/vendor/${endpoint}`, {
-        ...data,
-        onboardingToken: token,
-      });
+      if (isSignUp) {
+        // For signup, use Supabase directly
+        const { data: authData, error } = await supabase.auth.signUp({
+          email: data.email,
+          password: data.password,
+        });
+        
+        if (error) {
+          throw new Error(error.message);
+        }
+        
+        // Then create vendor record
+        return apiRequest("POST", `/api/vendor/signup`, {
+          ...data,
+          onboardingToken: token,
+        });
+      } else {
+        // For login, use Supabase directly
+        const { data: authData, error } = await supabase.auth.signInWithPassword({
+          email: data.email,
+          password: data.password,
+        });
+        
+        if (error) {
+          throw new Error(error.message);
+        }
+        
+        // Return user data
+        return { user: authData.user };
+      }
     },
     onSuccess: (data) => {
       toast({
