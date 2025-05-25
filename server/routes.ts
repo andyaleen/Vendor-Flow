@@ -415,7 +415,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // One-click vendor information sharing
-  app.post("/api/vendors/share", authenticateVendor, async (req: any, res) => {
+  app.post("/api/vendors/share", async (req: any, res) => {
     try {
       const { onboardingToken, shareDocuments = true } = req.body;
       const vendorId = req.vendor.id;
@@ -486,7 +486,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get vendor's sharing history
-  app.get("/api/vendors/sharing-history", authenticateVendor, async (req: any, res) => {
+  app.get("/api/vendors/sharing-history", async (req: any, res) => {
     try {
       const vendorId = req.vendor.id;
       
@@ -504,7 +504,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Validate onboarding request for sharing
-  app.get("/api/vendors/validate-share/:token", authenticateVendor, async (req: any, res) => {
+  app.get("/api/vendors/validate-share/:token", async (req: any, res) => {
     try {
       const { token } = req.params;
 
