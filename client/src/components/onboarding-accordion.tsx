@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ChevronDown, ChevronUp, Upload, CheckCircle } from "lucide-react";
 import { CompanyInfoForm } from "@/components/company-info-form";
 import { DocumentUpload } from "@/components/document-upload";
+import { apiRequest } from "@/lib/queryClient";
 import type { OnboardingRequest, Vendor, Document, CompanyInfoFormData } from "@shared/schema";
 
 interface OnboardingAccordionProps {
@@ -32,6 +33,31 @@ export function OnboardingAccordion({
 }: OnboardingAccordionProps) {
   const [openSection, setOpenSection] = useState<string | null>("company_info");
   const [completedSections, setCompletedSections] = useState<Set<string>>(new Set());
+  const [userDocuments, setUserDocuments] = useState<{
+    hasW9: boolean;
+    hasInsurance: boolean;
+    hasBanking: boolean;
+  }>({ hasW9: false, hasInsurance: false, hasBanking: false });
+
+  // Fetch user's existing documents
+  useEffect(() => {
+    const fetchUserDocuments = async () => {
+      try {
+        const response = await apiRequest("GET", "/api/user/documents");
+        setUserDocuments({
+          hasW9: response.documents?.w9 || false,
+          hasInsurance: response.documents?.insurance || false,
+          hasBanking: response.documents?.banking || false,
+        });
+      } catch (error) {
+        console.error("Error fetching user documents:", error);
+      }
+    };
+
+    if (vendor) {
+      fetchUserDocuments();
+    }
+  }, [vendor]);
 
   const toggle = (id: string) => {
     setOpenSection(prev => (prev === id ? null : id));
@@ -120,7 +146,7 @@ export function OnboardingAccordion({
             {request.requestedFields.includes("w9_tax") && (
               <div className="border rounded-lg p-4">
                 <h4 className="font-medium mb-3">W-9 Tax Form</h4>
-                {vendor?.hasW9OnFile ? (
+                {userDocuments.hasW9 ? (
                   <div className="bg-blue-50 p-4 rounded border border-blue-200">
                     <p className="text-blue-800 mb-3">
                       You've already uploaded a W-9. Would you like to share it with {request.requesterCompany}?
@@ -150,7 +176,7 @@ export function OnboardingAccordion({
             {request.requestedFields.includes("insurance") && (
               <div className="border rounded-lg p-4">
                 <h4 className="font-medium mb-3">Certificate of Insurance</h4>
-                {vendor?.hasInsuranceOnFile ? (
+                {userDocuments.hasInsurance ? (
                   <div className="bg-blue-50 p-4 rounded border border-blue-200">
                     <p className="text-blue-800 mb-3">
                       You've already uploaded insurance certificates. Would you like to share them with {request.requesterCompany}?
@@ -180,7 +206,7 @@ export function OnboardingAccordion({
             {request.requestedFields.includes("banking") && (
               <div className="border rounded-lg p-4">
                 <h4 className="font-medium mb-3">Banking Information</h4>
-                {vendor?.hasBankingOnFile ? (
+                {userDocuments.hasBanking ? (
                   <div className="bg-blue-50 p-4 rounded border border-blue-200">
                     <p className="text-blue-800 mb-3">
                       You've already provided banking details. Would you like to share them with {request.requesterCompany}?

@@ -61,6 +61,15 @@ export const documents = pgTable("documents", {
   uploadedAt: timestamp("uploaded_at").defaultNow(),
 });
 
+// Onboarding consent tracking table
+export const onboardingConsent = pgTable("onboarding_consent", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => vendors.id).notNull(),
+  requestId: integer("request_id").references(() => onboardingRequests.id).notNull(),
+  documentType: text("document_type").notNull(),
+  sharedAt: timestamp("shared_at").defaultNow(),
+});
+
 // Insert schemas
 export const insertVendorSchema = createInsertSchema(vendors).omit({
   id: true,
