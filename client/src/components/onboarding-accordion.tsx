@@ -12,53 +12,46 @@ interface OnboardingAccordionProps {
   request: OnboardingRequest;
   vendor?: Vendor;
   documents: Document[];
+  userDocuments?: {
+    w9: boolean;
+    insurance: boolean;
+    banking: boolean;
+  };
   onCompanySubmit: (data: CompanyInfoFormData) => void;
   onDocumentUpload: (file: File, documentType: string) => void;
   onDocumentDelete: (documentId: number) => void;
+  onDocumentConsent?: (documentType: string) => void;
   onComplete: () => void;
   isLoading?: boolean;
   isUploading?: boolean;
+  isConsenting?: boolean;
 }
 
 export function OnboardingAccordion({
   request,
   vendor,
   documents,
+  userDocuments,
   onCompanySubmit,
   onDocumentUpload,
   onDocumentDelete,
+  onDocumentConsent,
   onComplete,
   isLoading,
-  isUploading
+  isUploading,
+  isConsenting
 }: OnboardingAccordionProps) {
   const [openSection, setOpenSection] = useState<string | null>("company_info");
   const [completedSections, setCompletedSections] = useState<Set<string>>(new Set());
-  const [userDocuments, setUserDocuments] = useState<{
-    hasW9: boolean;
-    hasInsurance: boolean;
-    hasBanking: boolean;
-  }>({ hasW9: false, hasInsurance: false, hasBanking: false });
+  
+  // Convert userDocuments prop to the format expected by DocumentUpload
+  const convertedUserDocuments = userDocuments ? {
+    hasW9: userDocuments.w9,
+    hasInsurance: userDocuments.insurance,
+    hasBanking: userDocuments.banking,
+  } : undefined;
 
-  // Fetch user's existing documents
-  useEffect(() => {
-    const fetchUserDocuments = async () => {
-      try {
-        const response = await fetch("/api/user/documents");
-        const data = await response.json();
-        setUserDocuments({
-          hasW9: data.documents?.w9 || false,
-          hasInsurance: data.documents?.insurance || false,
-          hasBanking: data.documents?.banking || false,
-        });
-      } catch (error) {
-        console.error("Error fetching user documents:", error);
-      }
-    };
 
-    if (vendor) {
-      fetchUserDocuments();
-    }
-  }, [vendor]);
 
   const toggle = (id: string) => {
     setOpenSection(prev => (prev === id ? null : id));

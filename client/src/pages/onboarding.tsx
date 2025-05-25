@@ -543,12 +543,15 @@ export default function Onboarding() {
           request={request}
           vendor={vendor}
           documents={documents}
+          userDocuments={userDocuments}
           onCompanySubmit={handleCompanyInfoSubmit}
           onDocumentUpload={handleDocumentUpload}
           onDocumentDelete={handleDocumentDelete}
+          onDocumentConsent={consentMutation.mutate}
           onComplete={handleComplete}
           isLoading={companyInfoMutation.isPending || completeMutation.isPending}
           isUploading={documentUploadMutation.isPending}
+          isConsenting={consentMutation.isPending}
         />
       </main>
     </div>
