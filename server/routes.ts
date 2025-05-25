@@ -336,15 +336,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Store user consent to share documents
-  app.post("/api/onboarding-shares", async (req, res) => {
+  app.post("/api/document-consent", async (req, res) => {
     try {
-      const { request_id, doc_type } = req.body;
+      const { user_id, onboarding_request_id, document_type, consented_at } = req.body;
 
-      // Record the consent
-      await storage.createOnboardingConsent({
-        userId: 1, // Demo user ID
-        requestId: request_id,
-        documentType: doc_type,
+      // Insert consent record into database
+      await storage.createDocumentConsent({
+        userId: user_id,
+        onboardingRequestId: onboarding_request_id,
+        documentType: document_type,
+        consentedAt: new Date(consented_at),
       });
 
       res.json({ success: true });

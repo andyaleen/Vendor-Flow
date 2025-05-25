@@ -42,7 +42,7 @@ export interface IStorage {
   deleteDocument(id: number): Promise<boolean>;
   
   // Consent operations
-  createOnboardingConsent(consent: { userId: number; requestId: number; documentType: string; }): Promise<void>;
+  createDocumentConsent(consent: { userId: number; onboardingRequestId: number; documentType: string; consentedAt: Date; }): Promise<void>;
 }
 
 export class MemStorage implements IStorage {
@@ -262,10 +262,9 @@ export class MemStorage implements IStorage {
     return this.documents.delete(id);
   }
 
-  async createOnboardingConsent(consent: { userId: number; requestId: number; documentType: string; }): Promise<void> {
-    // For in-memory storage, we could store this in a separate Map if needed
-    // For now, we'll just log the consent (in a real database, this would insert a record)
-    console.log(`Consent recorded: User ${consent.userId} agreed to share ${consent.documentType} for request ${consent.requestId}`);
+  async createDocumentConsent(consent: { userId: number; onboardingRequestId: number; documentType: string; consentedAt: Date; }): Promise<void> {
+    // For in-memory storage, we log the consent (in a real database, this would insert into document_consent table)
+    console.log(`Document consent recorded: User ${consent.userId} agreed to share ${consent.documentType} for onboarding request ${consent.onboardingRequestId} at ${consent.consentedAt}`);
   }
 }
 

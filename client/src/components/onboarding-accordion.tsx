@@ -74,16 +74,17 @@ export function OnboardingAccordion({
     setOpenSection("documents");
   };
 
-  const handleAgreeAndShare = async (docType: string) => {
+  const handleConsent = async (docType: string) => {
     try {
       // Record the consent in backend
-      await fetch('/api/onboarding-shares', {
+      await fetch('/api/document-consent', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          request_id: request.id,
-          doc_type: docType,
-          agreed_at: new Date().toISOString()
+          user_id: vendor?.id || 1,
+          onboarding_request_id: request.id,
+          document_type: docType,
+          consented_at: new Date().toISOString()
         })
       });
       
@@ -92,7 +93,7 @@ export function OnboardingAccordion({
       
       // Auto-advance to next section if all documents are handled
       const allDocumentsComplete = request.requestedFields
-        .filter(field => ["w9_tax", "insurance", "banking"].includes(field))
+        .filter(field => ["w9", "insurance", "banking"].includes(field))
         .every(field => completedSections.has(`${field}_shared`) || completedSections.has(field));
         
       if (allDocumentsComplete) {
@@ -144,7 +145,7 @@ export function OnboardingAccordion({
         return (
           <div className="space-y-6">
             {/* W-9 Tax Document Section */}
-            {request.requestedFields.includes("w9_tax") && (
+            {request.requestedFields.includes("w9") && (
               <div className="border rounded-lg p-4">
                 <h4 className="font-medium mb-3">W-9 Tax Form</h4>
                 {userDocuments.hasW9 ? (
@@ -153,7 +154,7 @@ export function OnboardingAccordion({
                       You've already uploaded a W-9. Would you like to share it with {request.requesterCompany}?
                     </p>
                     <Button 
-                      onClick={() => handleAgreeAndShare("w9")}
+                      onClick={() => handleConsent("w9")}
                       className="bg-blue-600 hover:bg-blue-700"
                     >
                       Agree & Share
@@ -183,7 +184,7 @@ export function OnboardingAccordion({
                       You've already uploaded insurance certificates. Would you like to share them with {request.requesterCompany}?
                     </p>
                     <Button 
-                      onClick={() => handleAgreeAndShare("insurance")}
+                      onClick={() => handleConsent("insurance")}
                       className="bg-blue-600 hover:bg-blue-700"
                     >
                       Agree & Share
@@ -213,7 +214,7 @@ export function OnboardingAccordion({
                       You've already provided banking details. Would you like to share them with {request.requesterCompany}?
                     </p>
                     <Button 
-                      onClick={() => handleAgreeAndShare("banking")}
+                      onClick={() => handleConsent("banking")}
                       className="bg-blue-600 hover:bg-blue-700"
                     >
                       Agree & Share
