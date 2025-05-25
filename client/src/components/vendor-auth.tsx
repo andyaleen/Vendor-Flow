@@ -51,22 +51,8 @@ export function VendorAuth({ token, onAuthenticated, request }: VendorAuthProps)
       
       try {
         if (isSignUp) {
-          console.log('Attempting signup with Supabase...');
-          // For signup, use Supabase directly
-          const { data: authData, error } = await supabase.auth.signUp({
-            email: data.email,
-            password: data.password,
-          });
-          
-          console.log('Supabase signup response:', { authData, error });
-          
-          if (error) {
-            console.error('Supabase signup error:', error);
-            throw new Error(error.message);
-          }
-          
-          // Then create vendor record
-          console.log('Creating vendor record...');
+          console.log('Attempting signup with backend API...');
+          // Use the existing backend signup that was working
           const result = await apiRequest("POST", `/api/vendor/signup`, {
             ...data,
             onboardingToken: token,
