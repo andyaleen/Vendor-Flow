@@ -33,15 +33,52 @@ export default function Onboarding() {
     enabled: !!token,
   });
 
+  // Fetch user's existing documents for smart sharing
+  const { data: userDocumentsData } = useQuery({
+    queryKey: ['/api/user/documents'],
+    enabled: isAuthenticated,
+  });
+
   const request: OnboardingRequest | null = requestData?.request || null;
   const vendor: Vendor | null = requestData?.vendor || null;
   const documents: Document[] = documentsData?.documents || [];
+  const userDocuments = userDocumentsData?.documents;
 
   // Handle vendor authentication
   const handleVendorAuthenticated = (data: any) => {
     setIsAuthenticated(true);
     setVendorData(data);
   };
+
+  // Document consent mutation
+  const consentMutation = useMutation({
+    mutationFn: async (documentType: string) => {
+      return apiRequest('/api/document-consent', {
+        method: 'POST',
+        body: {
+          user_id: vendorData?.id || 1, // Use authenticated user ID
+          onboarding_request_id: request?.id,
+          document_type: documentType,
+          consented_at: new Date().toISOString()
+        }
+      });
+    },
+    onSuccess: () => {
+      toast({
+        title: "Document shared successfully",
+        description: "Your document has been shared with the requesting company."
+      });
+      // Invalidate queries to refresh data
+      queryClient.invalidateQueries({ queryKey: [`/api/onboarding-requests/${token}/documents`] });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error sharing document",
+        description: "Failed to share document. Please try again.",
+        variant: "destructive"
+      });
+    }
+  });
 
   // Update current step based on request data
   useEffect(() => {
