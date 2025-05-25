@@ -60,22 +60,15 @@ export function VendorAuth({ token, onAuthenticated, request }: VendorAuthProps)
           console.log('Vendor creation result:', result);
           return result;
         } else {
-          console.log('Attempting login with Supabase...');
-          // For login, use Supabase directly
-          const { data: authData, error } = await supabase.auth.signInWithPassword({
+          console.log('Attempting login with backend API...');
+          // Use the same backend system for consistency
+          const result = await apiRequest("POST", `/api/vendor/login`, {
             email: data.email,
             password: data.password,
+            onboardingToken: token,
           });
-          
-          console.log('Supabase login response:', { authData, error });
-          
-          if (error) {
-            console.error('Supabase login error:', error);
-            throw new Error(error.message);
-          }
-          
-          // Return user data
-          return { user: authData.user };
+          console.log('Vendor login result:', result);
+          return result;
         }
       } catch (err) {
         console.error('Authentication mutation error:', err);
