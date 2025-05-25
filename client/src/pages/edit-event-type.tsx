@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { useLocation } from "wouter";
+import { useLocation, useParams } from "wouter";
+import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -43,6 +44,14 @@ const fieldLibrary = {
 export default function EditEventType() {
   const [, setLocation] = useLocation();
   const { user } = useAuth();
+  const { id } = useParams();
+  
+  // Fetch the onboarding request data based on ID
+  const { data: onboardingType, isLoading } = useQuery({
+    queryKey: [`/api/onboarding-requests/${id}`],
+    enabled: !!id,
+  });
+  
   const [selectedFields, setSelectedFields] = useState([
     { fieldId: "company_info", subFieldId: "company_name", required: true },
     { fieldId: "company_info", subFieldId: "legal_business_name", required: false },
@@ -198,7 +207,9 @@ export default function EditEventType() {
                 >
                   ← Back to Onboarding Types
                 </Button>
-                <h1 className="text-2xl font-semibold text-gray-900">Edit Basic Vendor Setup</h1>
+                <h1 className="text-2xl font-semibold text-gray-900">
+                  Edit {onboardingType?.request?.onboardingTypeName || 'Onboarding Type'}
+                </h1>
                 <p className="text-gray-600 mt-1">Configure what information you want to collect from vendors</p>
               </div>
             </div>
