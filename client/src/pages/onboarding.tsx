@@ -502,37 +502,18 @@ export default function Onboarding() {
           </Card>
         )}
 
-        {currentStep === 2 && (
-          <CompanyInfoForm
-            onSubmit={handleCompanyInfoSubmit}
-            initialData={vendor || undefined}
-            onNext={() => updateStep(3)}
-            onPrevious={() => updateStep(1)}
-            isLoading={companyInfoMutation.isPending}
-          />
-        )}
-
-        {currentStep === 3 && (
-          <DocumentUpload
-            documents={documents}
-            onUpload={handleDocumentUpload}
-            onDelete={handleDocumentDelete}
-            onNext={() => updateStep(4)}
-            onPrevious={() => updateStep(2)}
-            isUploading={documentUploadMutation.isPending}
-          />
-        )}
-
-        {currentStep === 4 && vendor && (
-          <ReviewSubmit
-            vendor={vendor}
-            documents={documents}
-            request={request}
-            onSubmit={handleComplete}
-            onPrevious={() => updateStep(3)}
-            isSubmitting={completeMutation.isPending}
-          />
-        )}
+        {/* Beautiful Accordion Interface */}
+        <OnboardingAccordion
+          request={request}
+          vendor={vendor}
+          documents={documents}
+          onCompanySubmit={handleCompanyInfoSubmit}
+          onDocumentUpload={handleDocumentUpload}
+          onDocumentDelete={handleDocumentDelete}
+          onComplete={handleComplete}
+          isLoading={companyInfoMutation.isPending || completeMutation.isPending}
+          isUploading={documentUploadMutation.isPending}
+        />
       </main>
     </div>
   );

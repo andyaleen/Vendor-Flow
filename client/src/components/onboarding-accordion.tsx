@@ -38,7 +38,7 @@ export function OnboardingAccordion({
   };
 
   const markCompleted = (sectionId: string) => {
-    setCompletedSections(prev => new Set([...prev, sectionId]));
+    setCompletedSections(prev => new Set([...Array.from(prev), sectionId]));
   };
 
   const handleCompanySubmit = (data: CompanyInfoFormData) => {
