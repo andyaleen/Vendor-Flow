@@ -399,11 +399,8 @@ export default function Home() {
                     <Button 
                       className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                       onClick={() => {
-                        // Navigate to edit page for this onboarding type
-                        const selectedReq = vendorRequests.find(r => r.id === selectedRequestId);
-                        if (selectedReq) {
-                          setLocation(`/edit-event-type/${selectedReq.onboardingTypeName.toLowerCase().replace(/\s+/g, '-')}`);
-                        }
+                        // Navigate to edit page for this onboarding type using the actual ID
+                        setLocation(`/edit-event-type/${selectedRequestId}`);
                       }}
                     >
                       Edit
