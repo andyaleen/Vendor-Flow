@@ -1,0 +1,70 @@
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { ChevronDown, ChevronUp } from "lucide-react";
+
+const onboardingSections = [
+  {
+    id: "company_info",
+    title: "Company Information",
+    content: (
+      <div className="space-y-2">
+        <label className="block font-medium">Company Legal Name</label>
+        <input className="w-full border p-2 rounded" placeholder="Enter legal name" />
+        <label className="block font-medium">EIN</label>
+        <input className="w-full border p-2 rounded" placeholder="XX-XXXXXXX" />
+        <Button className="mt-2">Save</Button>
+      </div>
+    ),
+  },
+  {
+    id: "contact_info",
+    title: "Primary Contact Information",
+    content: (
+      <div className="space-y-2">
+        <label className="block font-medium">Full Name</label>
+        <input className="w-full border p-2 rounded" placeholder="Jane Doe" />
+        <label className="block font-medium">Email</label>
+        <input className="w-full border p-2 rounded" placeholder="jane@example.com" />
+        <Button className="mt-2">Save</Button>
+      </div>
+    ),
+  },
+];
+
+export default function OnboardingAccordion() {
+  const [openSection, setOpenSection] = useState<string | null>(null);
+
+  const toggle = (id: string) => {
+    setOpenSection(prev => (prev === id ? null : id));
+  };
+
+  return (
+    <div className="max-w-2xl mx-auto mt-10 space-y-6">
+      <div className="bg-white shadow p-6 rounded border">
+        <h2 className="text-xl font-semibold mb-2">Welcome to Vendor Onboarding</h2>
+        <p className="text-sm text-gray-600">
+          Let's get started by collecting your company information and required documents.
+        </p>
+        <Button className="mt-4">Get Started</Button>
+      </div>
+
+      {onboardingSections.map((section) => (
+        <div key={section.id} className="bg-white shadow rounded border">
+          <button
+            onClick={() => toggle(section.id)}
+            className="w-full text-left p-4 flex items-center justify-between hover:bg-gray-50"
+          >
+            <span className="font-medium text-lg">{section.title}</span>
+            {openSection === section.id ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+          </button>
+
+          {openSection === section.id && (
+            <div className="border-t px-4 py-4">
+              {section.content}
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}

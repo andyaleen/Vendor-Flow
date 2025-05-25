@@ -1,10 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { ProgressIndicator } from "@/components/progress-indicator";
-import { CompanyInfoForm } from "@/components/company-info-form";
-import { DocumentUpload } from "@/components/document-upload";
-import { ReviewSubmit } from "@/components/review-submit";
+import { OnboardingAccordion } from "@/components/onboarding-accordion";
 import { VendorAuth } from "@/components/vendor-auth";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
