@@ -14,6 +14,16 @@ interface DocumentUploadProps {
   onNext: () => void;
   onPrevious: () => void;
   isUploading?: boolean;
+  userDocuments?: {
+    hasW9: boolean;
+    hasInsurance: boolean;
+    hasBanking: boolean;
+  };
+  request?: {
+    requesterCompany: string;
+  };
+  onConsent?: (documentType: string) => void;
+  isConsenting?: boolean;
 }
 
 const requiredDocuments = [
@@ -46,13 +56,37 @@ export function DocumentUpload({
   onDelete, 
   onNext, 
   onPrevious,
-  isUploading 
+  isUploading,
+  userDocuments,
+  request,
+  onConsent,
+  isConsenting 
 }: DocumentUploadProps) {
   const { toast } = useToast();
   const fileInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
 
   const getDocumentForType = (type: string) => {
     return documents.find(doc => doc.documentType === type);
+  };
+
+  const hasUserDocument = (type: string) => {
+    if (!userDocuments) return false;
+    switch (type) {
+      case 'w9': return userDocuments.hasW9;
+      case 'insurance': return userDocuments.hasInsurance;
+      case 'banking': return userDocuments.hasBanking;
+      default: return false;
+    }
+  };
+
+  const handleConsent = (documentType: string) => {
+    if (onConsent) {
+      onConsent(documentType);
+      toast({
+        title: "Document shared",
+        description: `Your ${documentType} document has been shared with ${request?.requesterCompany}.`
+      });
+    }
   };
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>, documentType: string) => {
@@ -105,7 +139,10 @@ export function DocumentUpload({
 
   const canProceed = () => {
     const requiredDocs = requiredDocuments.filter(doc => doc.required);
-    return requiredDocs.every(doc => getDocumentForType(doc.type));
+    return requiredDocs.every(doc => {
+      // Document is complete if either uploaded for this request OR user has shared existing document
+      return getDocumentForType(doc.type) || hasUserDocument(doc.type);
+    });
   };
 
   return (
@@ -164,6 +201,23 @@ export function DocumentUpload({
                       </Button>
                     </div>
                   </div>
+                </div>
+              ) : hasUserDocument(docType.type) ? (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
+                  <CheckCircle className="w-12 h-12 text-blue-500 mx-auto mb-3" />
+                  <h4 className="text-sm font-medium text-neutral-800 mb-2">
+                    You've already uploaded a {docType.title}
+                  </h4>
+                  <p className="text-xs text-neutral-600 mb-4">
+                    Would you like to share it with {request?.requesterCompany}?
+                  </p>
+                  <Button
+                    onClick={() => handleConsent(docType.type)}
+                    disabled={isConsenting}
+                    className="bg-blue-500 hover:bg-blue-600 text-white"
+                  >
+                    {isConsenting ? "Sharing..." : "Agree & Share"}
+                  </Button>
                 </div>
               ) : (
                 <div className="border-2 border-dashed border-neutral-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors">
