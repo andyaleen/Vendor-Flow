@@ -72,7 +72,7 @@ export class MemStorage implements IStorage {
       onboardingTypeName: "Basic Vendor Setup",
       requesterCompany: "Test Company",
       requesterEmail: "test@company.com",
-      requestedFields: ["company_info", "contact_info"],
+      requestedFields: ["company_info", "contact_info", "w9", "insurance", "banking"],
       expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
       currentStep: 1,
       status: "pending",
