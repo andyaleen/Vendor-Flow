@@ -14,9 +14,9 @@ import { z } from "zod";
 const vendorAuthSchema = z.object({
   email: z.string().email("Please enter a valid email"),
   password: z.string().min(6, "Password must be at least 6 characters"),
-  firstName: z.string().min(1, "First name is required").optional(),
-  lastName: z.string().min(1, "Last name is required").optional(),
-  companyName: z.string().min(1, "Company name is required").optional(),
+  firstName: z.string().optional(),
+  lastName: z.string().optional(),
+  companyName: z.string().optional(),
 });
 
 type VendorAuthFormData = z.infer<typeof vendorAuthSchema>;
@@ -46,35 +46,54 @@ export function VendorAuth({ token, onAuthenticated, request }: VendorAuthProps)
 
   const authMutation = useMutation({
     mutationFn: async (data: VendorAuthFormData) => {
-      if (isSignUp) {
-        // For signup, use Supabase directly
-        const { data: authData, error } = await supabase.auth.signUp({
-          email: data.email,
-          password: data.password,
-        });
-        
-        if (error) {
-          throw new Error(error.message);
+      console.log('Starting authentication mutation...');
+      console.log('Data received:', data);
+      
+      try {
+        if (isSignUp) {
+          console.log('Attempting signup with Supabase...');
+          // For signup, use Supabase directly
+          const { data: authData, error } = await supabase.auth.signUp({
+            email: data.email,
+            password: data.password,
+          });
+          
+          console.log('Supabase signup response:', { authData, error });
+          
+          if (error) {
+            console.error('Supabase signup error:', error);
+            throw new Error(error.message);
+          }
+          
+          // Then create vendor record
+          console.log('Creating vendor record...');
+          const result = await apiRequest("POST", `/api/vendor/signup`, {
+            ...data,
+            onboardingToken: token,
+          });
+          console.log('Vendor creation result:', result);
+          return result;
+        } else {
+          console.log('Attempting login with Supabase...');
+          // For login, use Supabase directly
+          const { data: authData, error } = await supabase.auth.signInWithPassword({
+            email: data.email,
+            password: data.password,
+          });
+          
+          console.log('Supabase login response:', { authData, error });
+          
+          if (error) {
+            console.error('Supabase login error:', error);
+            throw new Error(error.message);
+          }
+          
+          // Return user data
+          return { user: authData.user };
         }
-        
-        // Then create vendor record
-        return apiRequest("POST", `/api/vendor/signup`, {
-          ...data,
-          onboardingToken: token,
-        });
-      } else {
-        // For login, use Supabase directly
-        const { data: authData, error } = await supabase.auth.signInWithPassword({
-          email: data.email,
-          password: data.password,
-        });
-        
-        if (error) {
-          throw new Error(error.message);
-        }
-        
-        // Return user data
-        return { user: authData.user };
+      } catch (err) {
+        console.error('Authentication mutation error:', err);
+        throw err;
       }
     },
     onSuccess: (data) => {
@@ -94,6 +113,8 @@ export function VendorAuth({ token, onAuthenticated, request }: VendorAuthProps)
   });
 
   const handleSubmit = (data: VendorAuthFormData) => {
+    console.log('Form submitted with data:', data);
+    console.log('Is sign up?', isSignUp);
     authMutation.mutate(data);
   };
 
