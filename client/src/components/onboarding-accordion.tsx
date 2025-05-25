@@ -43,11 +43,12 @@ export function OnboardingAccordion({
   useEffect(() => {
     const fetchUserDocuments = async () => {
       try {
-        const response = await apiRequest("GET", "/api/user/documents");
+        const response = await fetch("/api/user/documents");
+        const data = await response.json();
         setUserDocuments({
-          hasW9: response.documents?.w9 || false,
-          hasInsurance: response.documents?.insurance || false,
-          hasBanking: response.documents?.banking || false,
+          hasW9: data.documents?.w9 || false,
+          hasInsurance: data.documents?.insurance || false,
+          hasBanking: data.documents?.banking || false,
         });
       } catch (error) {
         console.error("Error fetching user documents:", error);

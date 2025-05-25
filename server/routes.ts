@@ -1,7 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-// Auth imports removed - switching to simple working auth
 import { uploadSingle, handleUploadError, getFileInfo, validateDocumentType, deleteUploadedFile } from "./fileUpload";
 import { 
   insertOnboardingRequestSchema, 
@@ -318,6 +317,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Add upload error handling middleware
   app.use("/api/onboarding-requests/:token/documents", handleUploadError);
+
+  // Get user's existing documents profile
+  app.get("/api/user/documents", async (req, res) => {
+    try {
+      // For demo: simulate user has some documents
+      const documentProfile = {
+        w9: true,  // User has W-9 on file
+        insurance: true,  // User has insurance on file
+        banking: false,   // User needs to upload banking
+      };
+
+      res.json({ documents: documentProfile });
+    } catch (error) {
+      console.error("Error fetching user documents:", error);
+      res.status(500).json({ error: "Failed to fetch user documents" });
+    }
+  });
+
+  // Store user consent to share documents
+  app.post("/api/onboarding-shares", async (req, res) => {
+    try {
+      const { request_id, doc_type } = req.body;
+
+      // Record the consent
+      await storage.createOnboardingConsent({
+        userId: 1, // Demo user ID
+        requestId: request_id,
+        documentType: doc_type,
+      });
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error recording consent:", error);
+      res.status(500).json({ error: "Failed to record consent" });
+    }
+  });
 
   // Get documents for request
   app.get("/api/onboarding-requests/:token/documents", async (req, res) => {
