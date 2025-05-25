@@ -389,8 +389,7 @@ export default function Onboarding() {
         </div>
       </header>
 
-      {/* Progress Indicator */}
-      <ProgressIndicator currentStep={currentStep} maxSteps={4} />
+
 
       {/* Welcome Section */}
       <div className="bg-white border-b border-neutral-200 py-12">
