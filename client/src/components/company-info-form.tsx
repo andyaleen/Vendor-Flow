@@ -9,6 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { GoogleAddressAutocomplete } from "@/components/google-address-autocomplete";
 import { useState } from "react";
 
 interface CompanyInfoFormProps {
