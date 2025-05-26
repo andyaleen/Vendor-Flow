@@ -53,10 +53,6 @@ export default function Landing() {
             </nav>
             
             <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2 text-sm text-gray-600">
-                <Globe className="w-4 h-4" />
-                <span>English</span>
-              </div>
               <Button 
                 variant="ghost" 
                 size="sm"
