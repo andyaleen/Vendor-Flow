@@ -136,6 +136,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get onboarding type by ID (for editing)
+  app.get("/api/onboarding-types/:id", async (req, res) => {
+    try {
+      console.log('=== API ROUTE HIT: /api/onboarding-types/:id ===');
+      const { id } = req.params;
+      console.log('Fetching onboarding type for ID:', id);
+      
+      const request = await storage.getOnboardingRequest(parseInt(id));
+      
+      if (!request) {
+        console.log('No onboarding type found for ID:', id);
+        return res.status(404).json({ error: "Onboarding type not found" });
+      }
+      
+      // Format the response to match what the edit page expects
+      const onboardingType = {
+        id: request.id,
+        title: request.onboardingTypeName,
+        onboardingTypeName: request.onboardingTypeName,
+        description: `${request.requestedFields.length} fields, ${request.status}`,
+        fields: request.requestedFields,
+        requesterCompany: request.requesterCompany,
+        requesterEmail: request.requesterEmail,
+        status: request.status,
+        expiresAt: request.expiresAt,
+        link: `${req.protocol}://${req.get('host')}/onboarding/${request.token}`
+      };
+      
+      console.log('Sending onboarding type response:', { 
+        title: onboardingType.title,
+        id: onboardingType.id 
+      });
+      
+      res.json(onboardingType);
+    } catch (error: any) {
+      console.log('Error fetching onboarding type:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // Get onboarding request by ID (for editing) - MUST come before token route
   app.get("/api/onboarding-requests/id/:id", async (req, res) => {
     try {

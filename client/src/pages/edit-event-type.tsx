@@ -46,9 +46,9 @@ export default function EditEventType() {
   const { user } = useAuth();
   const { id } = useParams();
   
-  // Fetch the onboarding request data based on ID
+  // Fetch the onboarding type data based on ID
   const { data: onboardingType, isLoading } = useQuery({
-    queryKey: [`/api/onboarding-requests/id/${id}`],
+    queryKey: [`/api/onboarding-types/${id}`],
     enabled: !!id,
   });
 
@@ -213,8 +213,8 @@ export default function EditEventType() {
                 <h1 className="text-2xl font-semibold text-gray-900">
                   {isLoading 
                     ? 'Loading...' 
-                    : onboardingType?.request?.title || onboardingType?.request?.onboardingTypeName 
-                      ? `Edit ${onboardingType.request.title || onboardingType.request.onboardingTypeName}`
+                    : onboardingType?.title 
+                      ? `Edit ${onboardingType.title}`
                       : `Edit Onboarding Type ${id || ''}`
                   }
                 </h1>
