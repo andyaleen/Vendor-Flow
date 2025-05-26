@@ -10,7 +10,27 @@ export default function Login() {
   const { user, isLoading } = useAuth();
   const [, setLocation] = useLocation();
 
-  // Redirect to dashboard if already authenticated
+  // Handle OAuth callback and redirect to dashboard if authenticated
+  useEffect(() => {
+    const handleAuthCallback = async () => {
+      // Check if this is an OAuth callback by looking for auth tokens in URL
+      const { data, error } = await supabase.auth.getSession();
+      
+      if (error) {
+        console.error('Auth callback error:', error);
+        return;
+      }
+      
+      // If we have a session, redirect to dashboard
+      if (data.session) {
+        setLocation("/dashboard");
+      }
+    };
+
+    handleAuthCallback();
+  }, [setLocation]);
+
+  // Also redirect if user becomes authenticated
   useEffect(() => {
     if (user && !isLoading) {
       setLocation("/dashboard");
