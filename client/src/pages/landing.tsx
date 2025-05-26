@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useLocation } from "wouter";
+import { supabase } from "@/lib/supabase";
 import { 
   Building, 
   FileText, 
