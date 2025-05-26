@@ -139,8 +139,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get onboarding request by ID (for editing)
   app.get("/api/onboarding-requests/id/:id", async (req, res) => {
     try {
+      console.log('=== API ROUTE HIT: /api/onboarding-requests/id/:id ===');
       const { id } = req.params;
       console.log('Fetching onboarding request for ID:', id);
+      
+      // Set proper headers
+      res.setHeader('Content-Type', 'application/json');
+      
       const request = await storage.getOnboardingRequest(parseInt(id));
       
       if (!request) {
@@ -153,8 +158,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         vendor = await storage.getVendor(request.vendorId);
       }
       
-      console.log('Sending response for ID:', id, { request: request.onboardingTypeName });
-      res.json({ request, vendor });
+      const responseData = { 
+        request: {
+          ...request,
+          title: request.onboardingTypeName // Add title field for easier access
+        }, 
+        vendor 
+      };
+      
+      console.log('Sending response for ID:', id, { 
+        title: request.onboardingTypeName,
+        id: request.id 
+      });
+      
+      return res.status(200).json(responseData);
     } catch (error: any) {
       console.log('Error fetching request:', error);
       res.status(500).json({ error: error.message });
