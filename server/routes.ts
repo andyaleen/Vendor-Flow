@@ -136,6 +136,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get onboarding request by ID (for editing)
+  app.get("/api/onboarding-requests/id/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const request = await storage.getOnboardingRequest(parseInt(id));
+      
+      if (!request) {
+        return res.status(404).json({ error: "Onboarding request not found" });
+      }
+      
+      let vendor = null;
+      if (request.vendorId) {
+        vendor = await storage.getVendor(request.vendorId);
+      }
+      
+      res.json({ request, vendor });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // Get onboarding request by token with expiration check
   app.get("/api/onboarding-requests/:token", async (req, res) => {
     try {
