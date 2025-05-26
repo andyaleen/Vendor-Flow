@@ -35,40 +35,7 @@ const upload = multer({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Auth middleware removed - switching to Supabase
-
-  // Simple working auth endpoints
-  app.get('/api/auth/user', (req: any, res) => {
-    res.json(null); // No auth until login
-  });
-
-  // Working login endpoint
-  app.post('/api/auth/login', async (req, res) => {
-    try {
-      const { email, password } = req.body;
-      
-      if (!email || !password) {
-        return res.status(400).json({ error: "Email and password required" });
-      }
-
-      // Simple working login - you can connect to your preferred auth service
-      if (email === "test@example.com" && password === "password") {
-        return res.json({ 
-          user: { 
-            id: 1, 
-            email: "test@example.com", 
-            firstName: "Test", 
-            lastName: "User" 
-          } 
-        });
-      }
-
-      return res.status(404).json({ error: "No account found with this email. Please sign up." });
-    } catch (error) {
-      console.error('Login error:', error);
-      res.status(500).json({ error: "Login failed. Please try again." });
-    }
-  });
+  // Authentication now handled entirely by Supabase client-side
 
   // Get user profile with completion status
   app.get('/api/user/profile', async (req: any, res) => {
