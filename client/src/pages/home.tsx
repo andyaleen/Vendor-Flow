@@ -68,7 +68,7 @@ export default function Home() {
   const [selectedRequestId, setSelectedRequestId] = useState<number | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
-  const [, setLocation] = useLocation();
+  const [location, setLocation] = useLocation();
   const queryClient = useQueryClient();
 
   // Fetch onboarding requests from API
@@ -165,14 +165,26 @@ export default function Home() {
           <nav className="px-6">
             <div className="space-y-2">
               <Button 
-                variant="ghost" 
-                className="w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                variant={location === '/dashboard' || location === '/' ? "secondary" : "ghost"}
+                className={`w-full justify-start ${
+                  location === '/dashboard' || location === '/' 
+                    ? 'bg-blue-50 text-blue-700 hover:bg-blue-100' 
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                }`}
                 onClick={() => setLocation('/dashboard')}
               >
                 <HomeIcon className="w-4 h-4 mr-3" />
                 Home
               </Button>
-              <Button variant="secondary" className="w-full justify-start bg-blue-50 text-blue-700 hover:bg-blue-100">
+              <Button 
+                variant={location.startsWith('/vendors') ? "secondary" : "ghost"}
+                className={`w-full justify-start ${
+                  location.startsWith('/vendors')
+                    ? 'bg-blue-50 text-blue-700 hover:bg-blue-100'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                }`}
+                onClick={() => setLocation('/vendors')}
+              >
                 <Users className="w-4 h-4 mr-3" />
                 Vendors
               </Button>
