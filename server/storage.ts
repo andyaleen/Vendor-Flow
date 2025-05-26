@@ -16,6 +16,8 @@ import {
   type InsertUser
 } from "@shared/schema";
 
+import { randomBytes } from "crypto";
+
 export interface IStorage {
   // User operations (JWT Auth)
   getUserById(id: number): Promise<User | undefined>;
@@ -79,7 +81,22 @@ export class MemStorage implements IStorage {
       vendorId: null,
     };
     this.onboardingRequests.set(1, seedRequest);
-    this.requestIdCounter = 2;
+
+    // Add the 1099 onboarding type that the dashboard expects
+    const seed1099Request: OnboardingRequest = {
+      id: 2,
+      token: 'test-1099-token-' + Date.now(),
+      onboardingTypeName: '1099',
+      requesterCompany: 'Test Company',
+      requesterEmail: 'user@company.com',
+      requestedFields: ['company_info', 'contact_info', 'w9_tax', 'insurance', 'banking'],
+      expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+      currentStep: 1,
+      status: 'pending',
+      vendorId: null
+    };
+    this.onboardingRequests.set(2, seed1099Request);
+    this.requestIdCounter = 3;
   }
 
   // User operations for Replit Auth
