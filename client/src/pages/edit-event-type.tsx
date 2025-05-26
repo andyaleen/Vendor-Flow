@@ -51,6 +51,9 @@ export default function EditEventType() {
     queryKey: [`/api/onboarding-requests/id/${id}`],
     enabled: !!id,
   });
+
+  // Debug: log the data structure
+  console.log('Onboarding type data:', onboardingType);
   
   const [selectedFields, setSelectedFields] = useState([
     { fieldId: "company_info", subFieldId: "company_name", required: true },
