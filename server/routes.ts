@@ -71,10 +71,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Profile update route
-  app.put('/api/user/profile', isAuthenticated, async (req: any, res) => {
+  app.put('/api/user/profile', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      // Handle both JWT auth and Replit auth
+      let userId;
+      if (req.user?.claims?.sub) {
+        // Replit Auth format
+        userId = req.user.claims.sub;
+      } else if (req.user?.id) {
+        // JWT Auth format
+        userId = req.user.id;
+      } else {
+        return res.status(401).json({ message: "Unauthorized - no user found" });
+      }
+      
       const profileData = req.body;
+      console.log("Updating profile for user:", userId, "with data:", profileData);
       
       // Update user profile with business information
       const updatedUser = await storage.updateUserProfile(userId, profileData);
