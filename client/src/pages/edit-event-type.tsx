@@ -208,7 +208,7 @@ export default function EditEventType() {
                   ← Back to Onboarding Types
                 </Button>
                 <h1 className="text-2xl font-semibold text-gray-900">
-                  Edit {onboardingType?.request?.onboardingTypeName || 'Onboarding Type'}
+                  {isLoading ? 'Loading...' : `Edit ${onboardingType?.request?.onboardingTypeName || 'Onboarding Type'}`}
                 </h1>
                 <p className="text-gray-600 mt-1">Configure what information you want to collect from vendors</p>
               </div>
