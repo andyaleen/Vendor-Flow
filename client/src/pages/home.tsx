@@ -167,7 +167,7 @@ export default function Home() {
               <Button 
                 variant="ghost" 
                 className="w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-                onClick={() => setLocation('/')}
+                onClick={() => setLocation('/dashboard')}
               >
                 <HomeIcon className="w-4 h-4 mr-3" />
                 Home
