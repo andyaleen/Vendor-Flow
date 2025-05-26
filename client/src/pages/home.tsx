@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
+import { useProfile } from "@/hooks/useProfile";
 import { createRequestSchema, type CreateRequestFormData } from "@shared/schema";
 import { Plus, Copy, Users, Settings, Filter, MoreHorizontal, Building, Mail, ChevronDown, LogOut, Home as HomeIcon, User, UserCheck, FileText, Shield, CreditCard, Award, Info } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -68,6 +69,7 @@ export default function Home() {
   const [selectedRequestId, setSelectedRequestId] = useState<number | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
+  const { profile, isComplete } = useProfile();
   const [location, setLocation] = useLocation();
   const queryClient = useQueryClient();
 
@@ -188,14 +190,16 @@ export default function Home() {
                 <Users className="w-4 h-4 mr-3" />
                 Vendors
               </Button>
-              <Button 
-                variant="ghost" 
-                className="w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-                onClick={() => setLocation('/profile-setup')}
-              >
-                <User className="w-4 h-4 mr-3" />
-                Fill out your profile
-              </Button>
+              {!isComplete && (
+                <Button 
+                  variant="ghost" 
+                  className="w-full justify-start text-orange-600 hover:text-orange-700 hover:bg-orange-50 border border-orange-200"
+                  onClick={() => setLocation('/profile-setup')}
+                >
+                  <UserCheck className="w-4 h-4 mr-3" />
+                  Complete your profile
+                </Button>
+              )}
               <Button variant="ghost" className="w-full justify-start text-gray-600">
                 <Settings className="w-4 h-4 mr-3" />
                 Settings
