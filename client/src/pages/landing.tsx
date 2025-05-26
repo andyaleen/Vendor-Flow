@@ -103,7 +103,7 @@ export default function Landing() {
                     const { error } = await supabase.auth.signInWithOAuth({
                       provider: 'google',
                       options: {
-                        redirectTo: 'https://vendor-vault-1-andy293.replit.app/dashboard'
+                        redirectTo: 'https://vendor-vault-1-andy293.replit.app/login'
                       }
                     });
                     if (error) {
