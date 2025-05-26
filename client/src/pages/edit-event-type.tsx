@@ -47,13 +47,13 @@ export default function EditEventType() {
   const { id } = useParams();
   
   // Fetch the onboarding type data based on ID
-  const { data: onboardingType, isLoading } = useQuery({
-    queryKey: [`/api/onboarding-types/${id}`],
+  const { data: onboardingData, isLoading } = useQuery({
+    queryKey: [`/api/onboarding-requests/id/${id}`],
     enabled: !!id,
   });
 
   // Debug: log the data structure
-  console.log('Onboarding type data:', onboardingType);
+  console.log('Onboarding type data:', onboardingData);
   
   const [selectedFields, setSelectedFields] = useState([
     { fieldId: "company_info", subFieldId: "company_name", required: true },
@@ -213,8 +213,8 @@ export default function EditEventType() {
                 <h1 className="text-2xl font-semibold text-gray-900">
                   {isLoading 
                     ? 'Loading...' 
-                    : onboardingType?.title 
-                      ? `Edit ${onboardingType.title}`
+                    : onboardingData?.request?.title 
+                      ? `Edit ${onboardingData.request.title}`
                       : `Edit Onboarding Type ${id || ''}`
                   }
                 </h1>
