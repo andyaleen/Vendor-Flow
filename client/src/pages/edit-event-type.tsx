@@ -48,7 +48,8 @@ export default function EditEventType() {
   
   // Fetch the onboarding type data based on ID
   const { data: onboardingData, isLoading } = useQuery({
-    queryKey: [`/api/onboarding-requests/id/${id}`],
+    queryKey: ['onboardingType', id],
+    queryFn: () => fetch(`/api/onboarding-requests/id/${id}`).then(res => res.json()),
     enabled: !!id,
   });
 
