@@ -136,7 +136,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get onboarding request by ID (for editing)
+  // Get onboarding request by ID (for editing) - MUST come before token route
   app.get("/api/onboarding-requests/id/:id", async (req, res) => {
     try {
       console.log('=== API ROUTE HIT: /api/onboarding-requests/id/:id ===');

@@ -195,7 +195,11 @@ export class MemStorage implements IStorage {
   }
 
   async getOnboardingRequest(id: number): Promise<OnboardingRequest | undefined> {
-    return this.onboardingRequests.get(id);
+    console.log('Storage: Looking for request ID:', id);
+    console.log('Storage: Available request IDs:', Array.from(this.onboardingRequests.keys()));
+    const result = this.onboardingRequests.get(id);
+    console.log('Storage: Found request:', result ? result.onboardingTypeName : 'NOT FOUND');
+    return result;
   }
 
   async getOnboardingRequestByToken(token: string): Promise<OnboardingRequest | undefined> {
