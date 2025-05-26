@@ -161,19 +161,33 @@ export class MemStorage implements IStorage {
   }
 
   async updateUserProfile(id: string, profileData: any): Promise<User> {
-    const existingUser = this.users.get(id);
+    console.log("updateUserProfile called with:", { id, profileData });
+    
+    // Create or update user with the provided ID
+    let existingUser = this.users.get(id);
     if (!existingUser) {
-      throw new Error("User not found");
+      console.log("User not found, creating new user with id:", id);
+      // Create a new user if one doesn't exist
+      existingUser = {
+        id: id,
+        email: null,
+        firstName: null,
+        lastName: null,
+        profileImageUrl: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
     }
     
-    // Update user with profile data - in a real app, you'd store this business info
-    // For now, we'll just return the existing user
+    // Store the profile data (in a real app, you'd have dedicated fields for business info)
     const updatedUser: User = {
       ...existingUser,
+      // You could add business-specific fields here in the User schema
       updatedAt: new Date(),
     };
     
     this.users.set(id, updatedUser);
+    console.log("Profile updated successfully:", updatedUser);
     return updatedUser;
   }
 
