@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -13,6 +13,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
+import { supabase } from "@/lib/supabase";
 import { createRequestSchema, type CreateRequestFormData } from "@shared/schema";
 import { Plus, Copy, Users, Settings, Filter, MoreHorizontal, Building, Mail, ChevronDown, LogOut, Home as HomeIcon, User, UserCheck, FileText, Shield, CreditCard, Award, Info } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -68,10 +69,17 @@ export default function Home() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [selectedRequestId, setSelectedRequestId] = useState<number | null>(null);
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
   const { profile, isComplete } = useProfile();
   const [location, setLocation] = useLocation();
   const queryClient = useQueryClient();
+
+  // Block unauthenticated access
+  useEffect(() => {
+    if (!isLoading && !user) {
+      setLocation("/");
+    }
+  }, [user, isLoading, setLocation]);
 
   // Fetch onboarding requests from API
   const { data: vendorRequests = [], refetch: refetchRequests } = useQuery({
@@ -245,14 +253,27 @@ export default function Home() {
                   Switch Account
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => {
-                  // Use proper logout endpoint that clears Google OAuth session
-                  fetch("/api/auth/logout", {
-                    method: "GET",
-                    credentials: "include",
-                  }).then(() => {
+                <DropdownMenuItem onClick={async () => {
+                  try {
+                    // Sign out from Supabase and await completion
+                    await supabase.auth.signOut();
+                    
+                    // Clear local storage
+                    localStorage.removeItem("supabase.auth.token");
+                    sessionStorage.clear();
+                    
+                    // Use proper logout endpoint that clears Google OAuth session
+                    await fetch("/api/auth/logout", {
+                      method: "GET",
+                      credentials: "include",
+                    });
+                    
+                    // Force refresh to ensure clean state
                     window.location.href = "/logged-out";
-                  });
+                  } catch (error) {
+                    console.error("Logout error:", error);
+                    window.location.href = "/logged-out";
+                  }
                 }}>
                   <LogOut className="w-4 h-4 mr-2" />
                   Sign out
