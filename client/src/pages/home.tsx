@@ -167,7 +167,11 @@ export default function Home() {
               <Button 
                 variant="ghost" 
                 className="w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-                onClick={() => setLocation(user ? '/dashboard' : '/')}
+                onClick={() => {
+                  console.log('Home button clicked, user:', user);
+                  console.log('Navigating to:', user ? '/dashboard' : '/');
+                  setLocation(user ? '/dashboard' : '/');
+                }}
               >
                 <HomeIcon className="w-4 h-4 mr-3" />
                 Home
