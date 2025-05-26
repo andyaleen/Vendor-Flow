@@ -142,7 +142,7 @@ export const vendorAuthSchema = z.object({
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
-// Session storage table for Replit Auth
+// Sessions table (currently unused with Supabase auth)
 export const sessions = pgTable(
   "sessions",
   {
@@ -153,7 +153,7 @@ export const sessions = pgTable(
   (table) => [index("IDX_session_expire").on(table.expire)],
 );
 
-// Company Users table for JWT authentication
+// Company Users table for Supabase authentication
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   email: varchar("email").unique().notNull(),
