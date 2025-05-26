@@ -70,6 +70,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get user profile with completion status
+  app.get('/api/user/profile', async (req: any, res) => {
+    try {
+      const dummyUserId = "test-user-id";
+      const userProfile = await storage.getUserProfile(dummyUserId);
+      
+      // Check if profile is complete
+      const isComplete = !!(
+        userProfile?.businessInfo?.legalBusinessName &&
+        userProfile?.businessInfo?.taxId &&
+        userProfile?.businessInfo?.businessAddress &&
+        userProfile?.businessInfo?.phoneNumber &&
+        userProfile?.businessInfo?.companyEmail
+      );
+      
+      res.json({
+        ...userProfile,
+        isComplete
+      });
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+      res.status(500).json({ message: "Failed to fetch profile" });
+    }
+  });
+
   // Profile update route
   app.put('/api/user/profile', async (req: any, res) => {
     try {

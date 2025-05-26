@@ -49,10 +49,11 @@ export interface IStorage {
 }
 
 export class MemStorage implements IStorage {
-  private users: Map<number, User>;
+  private users: Map<string, User>;
   private vendors: Map<number, Vendor>;
   private onboardingRequests: Map<number, OnboardingRequest>;
   private documents: Map<number, Document>;
+  private businessProfiles: Map<string, any>;
   private userIdCounter: number;
   private vendorIdCounter: number;
   private requestIdCounter: number;
@@ -63,6 +64,7 @@ export class MemStorage implements IStorage {
     this.vendors = new Map();
     this.onboardingRequests = new Map();
     this.documents = new Map();
+    this.businessProfiles = new Map();
     this.userIdCounter = 1;
     this.vendorIdCounter = 1;
     this.requestIdCounter = 1;
@@ -160,6 +162,17 @@ export class MemStorage implements IStorage {
     return user;
   }
 
+  async getUserProfile(id: string): Promise<any> {
+    const user = this.users.get(id);
+    const businessInfo = this.businessProfiles.get(id);
+    
+    return {
+      user,
+      businessInfo,
+      id
+    };
+  }
+
   async updateUserProfile(id: string, profileData: any): Promise<User> {
     console.log("updateUserProfile called with:", { id, profileData });
     
@@ -179,10 +192,12 @@ export class MemStorage implements IStorage {
       };
     }
     
-    // Store the profile data (in a real app, you'd have dedicated fields for business info)
+    // Store business information separately
+    this.businessProfiles.set(id, profileData);
+    
+    // Update user record
     const updatedUser: User = {
       ...existingUser,
-      // You could add business-specific fields here in the User schema
       updatedAt: new Date(),
     };
     
