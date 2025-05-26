@@ -158,118 +158,22 @@ export function CompanyInfoForm({
             {/* Business Address */}
             <div>
               <h3 className="text-base font-medium text-neutral-800 mb-4">Business Address</h3>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="lg:col-span-2">
-                  <FormField
-                    control={form.control}
-                    name="street"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>
-                          Street Address <span className="text-red-500">*</span>
-                        </FormLabel>
-                        <FormControl>
-                          <Input 
-                            placeholder="Enter street address" 
-                            {...field} 
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                
-                <FormField
-                  control={form.control}
-                  name="city"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        City <span className="text-red-500">*</span>
-                      </FormLabel>
-                      <FormControl>
-                        <Input 
-                          placeholder="Enter city" 
-                          {...field} 
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="state"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        State/Province <span className="text-red-500">*</span>
-                      </FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select state" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="CA">California</SelectItem>
-                          <SelectItem value="NY">New York</SelectItem>
-                          <SelectItem value="TX">Texas</SelectItem>
-                          <SelectItem value="FL">Florida</SelectItem>
-                          <SelectItem value="WA">Washington</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="postalCode"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        ZIP/Postal Code <span className="text-red-500">*</span>
-                      </FormLabel>
-                      <FormControl>
-                        <Input 
-                          placeholder="Enter postal code" 
-                          {...field} 
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="country"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        Country <span className="text-red-500">*</span>
-                      </FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select country" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="US">United States</SelectItem>
-                          <SelectItem value="CA">Canada</SelectItem>
-                          <SelectItem value="MX">Mexico</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+              <GoogleAddressAutocomplete
+                onAddressSelect={(address) => {
+                  form.setValue('street', address.street);
+                  form.setValue('city', address.city);
+                  form.setValue('state', address.state);
+                  form.setValue('postalCode', address.postalCode);
+                  form.setValue('country', address.country);
+                }}
+                initialValues={{
+                  street: form.getValues('street'),
+                  city: form.getValues('city'),
+                  state: form.getValues('state'),
+                  postalCode: form.getValues('postalCode'),
+                  country: form.getValues('country'),
+                }}
+              />
             </div>
             
             <Separator />
