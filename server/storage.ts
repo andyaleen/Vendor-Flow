@@ -102,8 +102,7 @@ export class MemStorage implements IStorage {
     this.requestIdCounter = 3;
   }
 
-  // User operations for Replit Auth
-  // JWT Authentication user methods
+  // User operations for Supabase authentication
   async getUserById(id: number): Promise<User | undefined> {
     return this.users.get(id);
   }
