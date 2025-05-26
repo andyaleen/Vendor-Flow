@@ -57,7 +57,6 @@ export default function Landing() {
                 <Globe className="w-4 h-4" />
                 <span>English</span>
               </div>
-              <span className="text-sm text-gray-600 hidden sm:block">Talk to sales</span>
               <Button 
                 variant="ghost" 
                 size="sm"
