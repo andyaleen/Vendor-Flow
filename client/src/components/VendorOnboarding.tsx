@@ -263,7 +263,10 @@ const VendorOnboarding = () => {
           </div>
         </div>
 
-        <button className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors">
+        <button 
+          onClick={() => setLocation('/')}
+          className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors"
+        >
           Go to Dashboard
         </button>
       </div>
