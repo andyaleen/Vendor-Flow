@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Check, ArrowRight, Building, Mail, Phone, MapPin, Globe, FileText } from 'lucide-react';
+import { GoogleAddressAutocomplete } from '@/components/google-address-autocomplete';
 
 const VendorOnboarding = () => {
   const [step, setStep] = useState(1);
@@ -9,7 +10,13 @@ const VendorOnboarding = () => {
     contactName: '',
     email: '',
     phone: '',
-    address: '',
+    address: {
+      street: '',
+      city: '',
+      state: '',
+      postalCode: '',
+      country: ''
+    },
     website: '',
     description: '',
     category: ''
@@ -17,6 +24,13 @@ const VendorOnboarding = () => {
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleAddressSelect = (addressComponents: any) => {
+    setFormData(prev => ({ 
+      ...prev, 
+      address: addressComponents 
+    }));
   };
 
   const handleSubmit = () => {
@@ -172,16 +186,10 @@ const VendorOnboarding = () => {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Business Address
               </label>
-              <div className="relative">
-                <MapPin className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-                <textarea
-                  value={formData.address}
-                  onChange={(e) => handleInputChange('address', e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                  rows={2}
-                  placeholder="123 Business St, City, State, ZIP"
-                />
-              </div>
+              <GoogleAddressAutocomplete
+                onAddressSelect={handleAddressSelect}
+                initialValues={formData.address}
+              />
             </div>
 
             <div>
