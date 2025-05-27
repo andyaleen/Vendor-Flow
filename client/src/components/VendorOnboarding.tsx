@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { Check, ArrowRight, Building, Mail, Phone, MapPin, Globe, FileText } from 'lucide-react';
 import { GoogleAddressAutocomplete } from '@/components/google-address-autocomplete';
+import { useLocation } from 'wouter';
 
 const VendorOnboarding = () => {
   const [step, setStep] = useState(1);
   const [agreed, setAgreed] = useState(false);
+  const [, setLocation] = useLocation();
   const [formData, setFormData] = useState({
     companyName: '',
     contactName: '',
