@@ -218,72 +218,13 @@ const VendorOnboarding = () => {
               Back
             </button>
             <button
-              onClick={() => setStep(3)}
+              onClick={handleSubmit}
               disabled={!isFormValid()}
-              className={`px-6 py-3 rounded-lg font-semibold flex items-center space-x-2 transition-all ${
+              className={`px-8 py-3 rounded-lg font-semibold transition-all ${
                 isFormValid() 
-                  ? 'bg-blue-600 hover:bg-blue-700 text-white' 
+                  ? 'bg-green-600 hover:bg-green-700 text-white' 
                   : 'bg-gray-200 text-gray-400 cursor-not-allowed'
               }`}
-            >
-              <span>Continue</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (step === 3) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-        <div className="max-w-2xl w-full bg-white rounded-2xl shadow-xl p-8">
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-bold text-gray-900">Tell Us About Your Business</h2>
-              <div className="text-sm text-gray-500">Step 2 of 2</div>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div className="bg-blue-600 h-2 rounded-full w-full"></div>
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Business Description
-            </label>
-            <div className="relative">
-              <FileText className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-              <textarea
-                value={formData.description}
-                onChange={(e) => handleInputChange('description', e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                rows={6}
-                placeholder="Briefly describe your business, services, and what makes you unique..."
-              />
-            </div>
-          </div>
-
-          <div className="bg-gray-50 rounded-lg p-4 mt-6">
-            <h3 className="font-semibold text-gray-900 mb-2">Summary</h3>
-            <div className="text-sm text-gray-600 space-y-1">
-              <div><strong>Company:</strong> {formData.companyName || 'Not provided'}</div>
-              <div><strong>Contact:</strong> {formData.contactName || 'Not provided'}</div>
-              <div><strong>Email:</strong> {formData.email || 'Not provided'}</div>
-            </div>
-          </div>
-
-          <div className="flex justify-between mt-8">
-            <button
-              onClick={() => setStep(2)}
-              className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              Back
-            </button>
-            <button
-              onClick={handleSubmit}
-              className="px-8 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold transition-colors"
             >
               Complete Onboarding
             </button>
@@ -292,6 +233,8 @@ const VendorOnboarding = () => {
       </div>
     );
   }
+
+
 
   // Success step
   return (
