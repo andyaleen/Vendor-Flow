@@ -11,6 +11,7 @@ import Home from "@/pages/home";
 import Onboarding from "@/pages/onboarding";
 import UserOnboarding from "@/pages/user-onboarding";
 import LoggedOut from "@/pages/logged-out";
+import VendorOnboarding from "@/components/VendorOnboarding";
 
 import EditEventType from "@/pages/edit-event-type";
 import ProfileSetup from "@/pages/profile-setup";
@@ -40,6 +41,7 @@ function Router() {
       <Route path="/profile-setup" component={user ? ProfileSetup : Login} />
       <Route path="/edit-event-type/:id" component={user ? EditEventType : Login} />
       <Route path="/onboarding/:token" component={Onboarding} />
+      <Route path="/vendor-onboarding" component={VendorOnboarding} />
 
       <Route component={NotFound} />
     </Switch>
