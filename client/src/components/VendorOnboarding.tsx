@@ -18,8 +18,7 @@ const VendorOnboarding = () => {
       country: ''
     },
     website: '',
-    description: '',
-    category: ''
+    description: ''
   });
 
   const handleInputChange = (field: string, value: string) => {
@@ -208,24 +207,7 @@ const VendorOnboarding = () => {
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Business Category
-              </label>
-              <select
-                value={formData.category}
-                onChange={(e) => handleInputChange('category', e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="">Select a category</option>
-                <option value="technology">Technology</option>
-                <option value="consulting">Consulting</option>
-                <option value="manufacturing">Manufacturing</option>
-                <option value="services">Professional Services</option>
-                <option value="retail">Retail</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
+
           </div>
 
           <div className="flex justify-between mt-8">
@@ -289,7 +271,6 @@ const VendorOnboarding = () => {
               <div><strong>Company:</strong> {formData.companyName || 'Not provided'}</div>
               <div><strong>Contact:</strong> {formData.contactName || 'Not provided'}</div>
               <div><strong>Email:</strong> {formData.email || 'Not provided'}</div>
-              <div><strong>Category:</strong> {formData.category || 'Not specified'}</div>
             </div>
           </div>
 
