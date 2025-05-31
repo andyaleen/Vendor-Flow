@@ -13,7 +13,6 @@ export default function Login() {
   // Handle OAuth callback and redirect to dashboard if authenticated
   useEffect(() => {
     const handleAuthCallback = async () => {
-      // Check if this is an OAuth callback by looking for auth tokens in URL
       const { data, error } = await supabase.auth.getSession();
       
       if (error) {
@@ -21,13 +20,23 @@ export default function Login() {
         return;
       }
       
-      // If we have a session, redirect to dashboard
       if (data.session) {
         setLocation("/dashboard");
       }
     };
 
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (event === 'SIGNED_IN' && session) {
+          setLocation("/dashboard");
+        }
+      }
+    );
+
     handleAuthCallback();
+
+    return () => subscription.unsubscribe();
   }, [setLocation]);
 
   // Also redirect if user becomes authenticated
