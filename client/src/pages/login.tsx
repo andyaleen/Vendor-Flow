@@ -144,7 +144,7 @@ export default function Login() {
                   const { error } = await supabase.auth.signInWithOAuth({
                     provider: 'google',
                     options: {
-                      redirectTo: 'https://vendor-vault-1-andy293.replit.app/login'
+                      redirectTo: 'https://vendor-vault-1-andy293.replit.app/dashboard'
                     }
                   });
                   if (error) {
