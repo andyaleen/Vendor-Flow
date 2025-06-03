@@ -312,13 +312,13 @@ export default function Landing() {
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center space-x-2 mb-4 md:mb-0">
               <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">V</span>
+                <span className="text-white font-bold text-sm">O</span>
               </div>
-              <span className="text-xl font-semibold text-gray-900">VendorFlow</span>
+              <span className="text-xl font-semibold text-gray-900">Onbo</span>
             </div>
             
             <div className="flex items-center space-x-8 text-sm text-gray-600">
-              <span>© 2024 VendorFlow</span>
+              <span>© 2024 Onbo</span>
               <span>Privacy Policy</span>
               <span>Terms of Service</span>
               <span>Contact</span>
