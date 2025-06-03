@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useLocation } from "wouter";
 import { supabase } from "@/lib/supabase";
-import logoImage from "@/assets/logo.png";
+import logoImage from "@assets/ChatGPT Image Jun 3, 2025, 03_49_26 PM.png";
 import { 
   Building, 
   FileText, 

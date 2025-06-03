@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Building, FileText, Clock, CheckCircle, User, Mail, Phone } from "lucide-react";
 import { formatDate, formatFileSize } from "@/lib/utils";
-import logoImage from "@/assets/logo.png";
+import logoImage from "@assets/ChatGPT Image Jun 3, 2025, 03_49_26 PM.png";
 import type { Vendor, Document, OnboardingRequest } from "@shared/schema";
 
 export default function VendorDashboard() {
