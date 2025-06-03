@@ -5,7 +5,7 @@ import { useLocation } from "wouter";
 import { useEffect } from "react";
 import { Building, ArrowLeft } from "lucide-react";
 import { supabase } from "@/lib/supabase";
-import logoImage from "@assets/ChatGPT Image Jun 3, 2025, 03_49_26 PM.png";
+
 
 export default function Login() {
   const { user, isLoading } = useAuth();
@@ -78,7 +78,7 @@ export default function Login() {
             </button>
             
             <div className="flex items-center">
-              <img src={logoImage} alt="Logo" className="h-10 w-auto" />
+              <img src="/logo.png" alt="Logo" className="h-10 w-auto" />
             </div>
             
             <div></div> {/* Spacer for center alignment */}
