@@ -5,7 +5,7 @@ import { useLocation } from "wouter";
 import { useEffect } from "react";
 import { Building, ArrowLeft } from "lucide-react";
 import { supabase } from "@/lib/supabase";
-import logo from "../assets/logo.png";
+
 
 
 export default function Login() {
@@ -79,7 +79,7 @@ export default function Login() {
             </button>
             
             <div className="flex items-center">
-              <img src={logo} alt="Onbo Logo" className="h-10 w-auto" />
+              <img src="/logo.png" alt="Onbo Logo" className="h-10 w-auto" />
             </div>
             
             <div></div> {/* Spacer for center alignment */}

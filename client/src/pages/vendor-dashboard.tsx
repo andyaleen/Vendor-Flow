@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Building, FileText, Clock, CheckCircle, User, Mail, Phone } from "lucide-react";
 import { formatDate, formatFileSize } from "@/lib/utils";
-import logo from "../assets/logo.png";
+
 
 import type { Vendor, Document, OnboardingRequest } from "@shared/schema";
 
