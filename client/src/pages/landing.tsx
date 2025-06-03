@@ -31,9 +31,9 @@ export default function Landing() {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-2">
               <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">V</span>
+                <span className="text-white font-bold text-sm">O</span>
               </div>
-              <span className="text-xl font-semibold text-gray-900">VendorFlow</span>
+              <span className="text-xl font-semibold text-gray-900">Onbo</span>
             </div>
             
             <nav className="hidden md:flex items-center space-x-8">

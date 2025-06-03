@@ -78,9 +78,9 @@ export default function Login() {
             
             <div className="flex items-center space-x-2">
               <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">V</span>
+                <span className="text-white font-bold text-sm">O</span>
               </div>
-              <span className="text-xl font-semibold text-gray-900">VendorFlow</span>
+              <span className="text-xl font-semibold text-gray-900">Onbo</span>
             </div>
             
             <div></div> {/* Spacer for center alignment */}
@@ -94,7 +94,7 @@ export default function Login() {
           <CardHeader className="text-center">
             <CardTitle className="text-2xl font-bold">Welcome back</CardTitle>
             <CardDescription>
-              Sign in to your VendorFlow account to manage your vendor onboarding
+              Sign in to your Onbo account to manage your vendor onboarding
             </CardDescription>
           </CardHeader>
           

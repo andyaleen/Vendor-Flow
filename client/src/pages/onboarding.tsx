@@ -282,7 +282,7 @@ export default function Onboarding() {
         <header className="bg-white border-b border-neutral-200 px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between py-6">
             <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-neutral-900">VendorFlow</h1>
+              <h1 className="text-2xl font-bold text-neutral-900">Onbo</h1>
             </div>
             <div className="flex items-center space-x-3">
               <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-medium">
@@ -412,7 +412,7 @@ export default function Onboarding() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <h1 className="text-xl font-bold text-neutral-800">VendorFlow</h1>
+              <h1 className="text-xl font-bold text-neutral-800">Onbo</h1>
             </div>
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
