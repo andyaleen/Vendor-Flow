@@ -5,7 +5,7 @@ import { useLocation } from "wouter";
 import { useEffect } from "react";
 import { Building, ArrowLeft } from "lucide-react";
 import { supabase } from "@/lib/supabase";
-import logo from "@/assets/logo.png";
+import logo from "../assets/logo.png";
 
 
 export default function Login() {
