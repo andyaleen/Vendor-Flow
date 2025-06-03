@@ -77,11 +77,8 @@ export default function Login() {
               <span>Back to home</span>
             </button>
             
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">O</span>
-              </div>
-              <span className="text-xl font-semibold text-gray-900">Onbo</span>
+            <div className="flex items-center">
+              <img src={logoImage} alt="Logo" className="h-10 w-auto" />
             </div>
             
             <div></div> {/* Spacer for center alignment */}

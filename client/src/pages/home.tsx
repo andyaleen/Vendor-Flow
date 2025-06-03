@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
+import logoImage from "@/assets/logo.png";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -168,7 +169,7 @@ export default function Home() {
               <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
                 <Building className="w-5 h-5 text-white" />
               </div>
-              <h1 className="text-xl font-semibold text-gray-900">Onbo</h1>
+              <img src={logoImage} alt="Logo" className="h-8 w-auto" />
             </div>
           </div>
           

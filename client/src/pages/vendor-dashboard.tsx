@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Building, FileText, Clock, CheckCircle, User, Mail, Phone } from "lucide-react";
 import { formatDate, formatFileSize } from "@/lib/utils";
+import logoImage from "@/assets/logo.png";
 import type { Vendor, Document, OnboardingRequest } from "@shared/schema";
 
 export default function VendorDashboard() {
@@ -18,7 +19,7 @@ export default function VendorDashboard() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <h1 className="text-xl font-bold text-neutral-800">Onbo</h1>
+              <img src={logoImage} alt="Logo" className="h-8 w-auto" />
             </div>
             <div className="flex items-center space-x-4">
               <span className="text-sm text-neutral-600">Vendor Dashboard</span>
