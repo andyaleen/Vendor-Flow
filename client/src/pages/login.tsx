@@ -79,7 +79,7 @@ export default function Login() {
             </button>
             
             <div className="flex items-center">
-              <img src="/logo.png" alt="Onbo Logo" className="h-10 w-auto" />
+              <img src="/logo.svg" alt="Onbo Logo" className="h-10 w-auto" />
             </div>
             
             <div></div> {/* Spacer for center alignment */}

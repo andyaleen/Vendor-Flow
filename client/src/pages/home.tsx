@@ -170,7 +170,7 @@ export default function Home() {
               <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
                 <Building className="w-5 h-5 text-white" />
               </div>
-              <img src="/logo.png" alt="Onbo Logo" className="h-8 w-auto" />
+              <img src="/logo.svg" alt="Onbo Logo" className="h-8 w-auto" />
             </div>
           </div>
           
