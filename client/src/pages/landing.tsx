@@ -83,11 +83,15 @@ export default function Landing() {
             <div className="space-y-8">
               <div className="space-y-6">
                 <h1 className="text-5xl font-bold text-gray-900 leading-tight">
-                  Make onboarding easy
+                  Easy
+                  <br />
+                  vendor onboarding
+                  <br />
+                  ahead
                 </h1>
                 
                 <p className="text-xl text-gray-600 max-w-md">
-                  ...the #1 onboarding tool.
+                  Join 20 million professionals who easily onboard vendors with the #1 vendor management tool.
                 </p>
               </div>
 
