@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useLocation } from "wouter";
 import { supabase } from "@/lib/supabase";
+import logoImage from "@/assets/logo.png";
 import { 
   Building, 
   FileText, 
@@ -29,11 +30,8 @@ export default function Landing() {
       <header className="border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">O</span>
-              </div>
-              <span className="text-xl font-semibold text-gray-900">Onbo</span>
+            <div className="flex items-center">
+              <img src={logoImage} alt="Logo" className="h-10 w-auto" />
             </div>
             
             <nav className="hidden md:flex items-center space-x-8">
@@ -310,15 +308,12 @@ export default function Landing() {
       <footer className="bg-white border-t border-gray-200 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="flex items-center space-x-2 mb-4 md:mb-0">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">O</span>
-              </div>
-              <span className="text-xl font-semibold text-gray-900">Onbo</span>
+            <div className="flex items-center mb-4 md:mb-0">
+              <img src={logoImage} alt="Logo" className="h-8 w-auto" />
             </div>
             
             <div className="flex items-center space-x-8 text-sm text-gray-600">
-              <span>© 2024 Onbo</span>
+              <span>© 2024</span>
               <span>Privacy Policy</span>
               <span>Terms of Service</span>
               <span>Contact</span>
