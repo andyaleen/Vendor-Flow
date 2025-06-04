@@ -519,19 +519,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all onboarding requests for dashboard  
   app.get("/api/onboarding-requests", async (req: any, res) => {
     try {
+      console.log('=== GET /api/onboarding-requests called ===');
       // Get all onboarding requests from storage and format them for the dashboard
       const allRequests = Array.from((storage as any).onboardingRequests.values());
-      const requests = allRequests.map((request: any) => ({
-        id: request.id,
-        title: request.onboardingTypeName || request.requesterCompany,
-        onboardingTypeName: request.onboardingTypeName || request.requesterCompany,
-        description: `${request.requestedFields.length} fields, ${request.status}`,
-        fields: request.requestedFields,
-        createdAt: request.createdAt,
-        link: `${req.protocol}://${req.get('host')}/onboarding/${request.token}`,
-        status: request.status
-      }));
+      console.log('Found requests:', allRequests.length);
       
+      const requests = allRequests.map((request: any) => {
+        const generatedLink = `${req.protocol}://${req.get('host')}/onboarding/${request.token}`;
+        console.log('Generated link for request:', request.id, ':', generatedLink);
+        
+        return {
+          id: request.id,
+          title: request.onboardingTypeName || request.requesterCompany,
+          onboardingTypeName: request.onboardingTypeName || request.requesterCompany,
+          description: `${request.requestedFields.length} fields, ${request.status}`,
+          fields: request.requestedFields,
+          createdAt: request.createdAt,
+          link: generatedLink,
+          status: request.status
+        };
+      });
+      
+      console.log('Sending response with', requests.length, 'requests');
       res.json(requests);
     } catch (error: any) {
       console.error("Error fetching onboarding requests:", error);
