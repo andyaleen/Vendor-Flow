@@ -12,8 +12,8 @@ import {
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-// Vendors table
-export const vendors = pgTable("vendors", {
+// Partners table
+export const partners = pgTable("partners", {
   id: serial("id").primaryKey(),
   companyName: text("company_name").notNull(),
   dbaName: text("dba_name"),
@@ -44,7 +44,7 @@ export const onboardingRequests = pgTable("onboarding_requests", {
   requesterEmail: text("requester_email").notNull(),
   requestedFields: text("requested_fields").array().notNull(),
   expiresAt: timestamp("expires_at").notNull(),
-  vendorId: integer("vendor_id").references(() => vendors.id),
+  partnerId: integer("partner_id").references(() => partners.id),
   status: text("status").notNull().default("pending"), // pending, completed, expired
   currentStep: integer("current_step").default(1),
 });
@@ -52,7 +52,7 @@ export const onboardingRequests = pgTable("onboarding_requests", {
 // Documents table
 export const documents = pgTable("documents", {
   id: serial("id").primaryKey(),
-  vendorId: integer("vendor_id").references(() => vendors.id).notNull(),
+  partnerId: integer("partner_id").references(() => partners.id).notNull(),
   requestId: integer("request_id").references(() => onboardingRequests.id),
   documentType: text("document_type").notNull(), // w9, insurance, banking
   fileName: text("file_name").notNull(),
@@ -64,21 +64,21 @@ export const documents = pgTable("documents", {
 // Onboarding consent tracking table
 export const onboardingConsent = pgTable("onboarding_consent", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").references(() => vendors.id).notNull(),
+  userId: integer("user_id").references(() => partners.id).notNull(),
   requestId: integer("request_id").references(() => onboardingRequests.id).notNull(),
   documentType: text("document_type").notNull(),
   sharedAt: timestamp("shared_at").defaultNow(),
 });
 
 // Insert schemas
-export const insertVendorSchema = createInsertSchema(vendors).omit({
+export const insertPartnerSchema = createInsertSchema(partners).omit({
   id: true,
   isActive: true,
 });
 
 export const insertOnboardingRequestSchema = createInsertSchema(onboardingRequests).omit({
   id: true,
-  vendorId: true,
+  partnerId: true,
   status: true,
   currentStep: true,
 });
@@ -89,8 +89,8 @@ export const insertDocumentSchema = createInsertSchema(documents).omit({
 });
 
 // Types
-export type Vendor = typeof vendors.$inferSelect;
-export type InsertVendor = z.infer<typeof insertVendorSchema>;
+export type Partner = typeof partners.$inferSelect;
+export type InsertPartner = z.infer<typeof insertPartnerSchema>;
 
 export type OnboardingRequest = typeof onboardingRequests.$inferSelect;
 export type InsertOnboardingRequest = z.infer<typeof insertOnboardingRequestSchema>;
