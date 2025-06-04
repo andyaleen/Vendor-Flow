@@ -123,11 +123,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + expirationDays);
       
+      // For now, use the onboarding type name as the company name since we don't have user auth
+      // In a real app with authentication, this would come from the authenticated user
+      const requesterCompany = validatedData.onboardingTypeName || "Your Company";
+      
       const request = await storage.createOnboardingRequest({
         token,
         onboardingTypeName: validatedData.onboardingTypeName,
-        requesterCompany: (req.user as any)?.companyName || (req.user as any)?.firstName + " " + (req.user as any)?.lastName || "Your Company",
-        requesterEmail: (req.user as any)?.email || "user@company.com",
+        requesterCompany: requesterCompany,
+        requesterEmail: "user@company.com", // This would come from authenticated user
         requestedFields: validatedData.requestedFields,
         expiresAt,
       });
