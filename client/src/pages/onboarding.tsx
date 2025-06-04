@@ -272,6 +272,8 @@ export default function Onboarding() {
 
   // Show authentication form if vendor is not authenticated
   if (!isAuthenticated && request) {
+    console.log('Onboarding page - passing request to VendorAuth:', request);
+    console.log('Request requesterCompany:', request.requesterCompany);
     return <VendorAuth token={token!} onAuthenticated={handleVendorAuthenticated} request={request} />;
   }
 
