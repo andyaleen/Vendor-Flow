@@ -83,33 +83,11 @@ export default function Home() {
     }
   }, [user, isLoading, setLocation]);
 
-  // Debug user state
-  console.log('User state:', { user, isLoading });
-
   // Fetch onboarding requests from API
-  const { data: vendorRequests = [], refetch: refetchRequests, isLoading: isRequestsLoading, error: requestsError } = useQuery({
+  const { data: vendorRequests = [], refetch: refetchRequests } = useQuery({
     queryKey: ['/api/onboarding-requests'],
     enabled: !!user,
   });
-
-  // Debug API response
-  useEffect(() => {
-    if (vendorRequests && Array.isArray(vendorRequests)) {
-      console.log('API response received:', vendorRequests);
-      if (vendorRequests.length > 0) {
-        console.log('First request data:', vendorRequests[0]);
-        console.log('Link from first request:', (vendorRequests[0] as any).link);
-      }
-    }
-  }, [vendorRequests]);
-
-  useEffect(() => {
-    if (requestsError) {
-      console.error('API error:', requestsError);
-    }
-  }, [requestsError]);
-
-  console.log('Requests query state:', { isRequestsLoading, requestsError, dataLength: Array.isArray(vendorRequests) ? vendorRequests.length : 0 });
 
   const selectedRequest = vendorRequests.find((req: any) => req.id === selectedRequestId);
 
@@ -154,10 +132,7 @@ export default function Home() {
   };
 
   const copyLinkToClipboard = (text: string) => {
-    console.log('copyLinkToClipboard called with:', text);
-    
     if (!text) {
-      console.log('No text provided');
       toast({
         title: "Error",
         description: "No link available to copy.",
@@ -166,7 +141,6 @@ export default function Home() {
       return;
     }
     
-    console.log('Using document.execCommand copy method');
     // Create a temporary textarea element
     const textArea = document.createElement('textarea');
     textArea.value = text;
@@ -182,7 +156,6 @@ export default function Home() {
     
     try {
       const successful = document.execCommand('copy');
-      console.log('Copy command result:', successful);
       
       if (successful) {
         toast({
@@ -192,15 +165,14 @@ export default function Home() {
       } else {
         toast({
           title: "Copy failed",
-          description: "Unable to copy link. Please copy manually from the address bar.",
+          description: "Unable to copy link. Please open in new tab to copy manually.",
           variant: "destructive",
         });
       }
     } catch (error) {
-      console.error('Copy failed:', error);
       toast({
-        title: "Copy failed",
-        description: "Unable to copy link. Please copy manually.",
+        title: "Copy failed", 
+        description: "Please open in new tab to copy the link.",
         variant: "destructive",
       });
     } finally {
@@ -425,8 +397,6 @@ export default function Home() {
                             className="flex-1"
                             onClick={(e) => {
                               e.stopPropagation();
-                              console.log('Copy button clicked, request:', request);
-                              console.log('Link to copy:', request.link);
                               copyLinkToClipboard(request.link);
                             }}
                           >
