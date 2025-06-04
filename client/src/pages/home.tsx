@@ -164,23 +164,33 @@ export default function Home() {
         return;
       }
       
-      await navigator.clipboard.writeText(text);
-      toast({
-        title: "Link copied!",
-        description: "The vendor onboarding link has been copied to your clipboard.",
-      });
-    } catch (error) {
-      // Fallback for older browsers
+      // Use fallback method that works in all environments
       const textArea = document.createElement('textarea');
       textArea.value = text;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-999999px';
+      textArea.style.top = '-999999px';
       document.body.appendChild(textArea);
+      textArea.focus();
       textArea.select();
-      document.execCommand('copy');
+      
+      const successful = document.execCommand('copy');
       document.body.removeChild(textArea);
       
+      if (successful) {
+        toast({
+          title: "Link copied!",
+          description: "The vendor onboarding link has been copied to your clipboard.",
+        });
+      } else {
+        throw new Error('Copy command failed');
+      }
+    } catch (error) {
+      console.error('Copy failed:', error);
       toast({
-        title: "Link copied!",
-        description: "The vendor onboarding link has been copied to your clipboard.",
+        title: "Copy failed",
+        description: "Please manually copy the link from the address bar.",
+        variant: "destructive",
       });
     }
   };
