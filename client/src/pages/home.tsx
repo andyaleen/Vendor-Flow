@@ -153,33 +153,35 @@ export default function Home() {
     createRequestMutation.mutate(data);
   };
 
-  const copyToClipboard = async (text: string) => {
-    console.log('copyToClipboard called with:', text);
+  const copyLinkToClipboard = (text: string) => {
+    console.log('copyLinkToClipboard called with:', text);
+    
+    if (!text) {
+      console.log('No text provided');
+      toast({
+        title: "Error",
+        description: "No link available to copy.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    console.log('Using document.execCommand copy method');
+    // Create a temporary textarea element
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.position = 'fixed';
+    textArea.style.left = '-999999px';
+    textArea.style.top = '-999999px';
+    textArea.setAttribute('readonly', '');
+    document.body.appendChild(textArea);
+    
+    // Select and copy the text
+    textArea.select();
+    textArea.setSelectionRange(0, 99999); // For mobile devices
+    
     try {
-      if (!text) {
-        console.log('No text provided');
-        toast({
-          title: "Error",
-          description: "No link available to copy.",
-          variant: "destructive",
-        });
-        return;
-      }
-      
-      console.log('Using fallback copy method');
-      // Use fallback method that works in all environments
-      const textArea = document.createElement('textarea');
-      textArea.value = text;
-      textArea.style.position = 'fixed';
-      textArea.style.left = '-999999px';
-      textArea.style.top = '-999999px';
-      document.body.appendChild(textArea);
-      textArea.focus();
-      textArea.select();
-      
       const successful = document.execCommand('copy');
-      document.body.removeChild(textArea);
-      
       console.log('Copy command result:', successful);
       
       if (successful) {
@@ -188,15 +190,21 @@ export default function Home() {
           description: "The vendor onboarding link has been copied to your clipboard.",
         });
       } else {
-        throw new Error('Copy command failed');
+        toast({
+          title: "Copy failed",
+          description: "Unable to copy link. Please copy manually from the address bar.",
+          variant: "destructive",
+        });
       }
     } catch (error) {
       console.error('Copy failed:', error);
       toast({
         title: "Copy failed",
-        description: "Please manually copy the link from the address bar.",
+        description: "Unable to copy link. Please copy manually.",
         variant: "destructive",
       });
+    } finally {
+      document.body.removeChild(textArea);
     }
   };
 
@@ -419,7 +427,7 @@ export default function Home() {
                               e.stopPropagation();
                               console.log('Copy button clicked, request:', request);
                               console.log('Link to copy:', request.link);
-                              copyToClipboard(request.link);
+                              copyLinkToClipboard(request.link);
                             }}
                           >
                             <Copy className="w-4 h-4 mr-2" />
