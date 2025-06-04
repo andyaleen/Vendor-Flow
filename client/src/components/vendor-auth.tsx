@@ -110,7 +110,9 @@ export function VendorAuth({ token, onAuthenticated, request }: VendorAuthProps)
           </div>
           <CardTitle className="text-2xl">
             {isSignUp ? "Create Your Account" : 
-             request?.requesterCompany ? `${request.requesterCompany} invites you to onboard as a vendor` : "Welcome Back"}
+             request?.requesterCompany && request.requesterCompany !== "undefined undefined" 
+               ? `${request.requesterCompany} invites you to onboard as a vendor` 
+               : "Someone invites you to onboard as a vendor"}
           </CardTitle>
           <CardDescription>
             {isSignUp 
