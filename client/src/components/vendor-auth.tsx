@@ -32,6 +32,10 @@ interface VendorAuthProps {
 export function VendorAuth({ token, onAuthenticated, request }: VendorAuthProps) {
   const [isSignUp, setIsSignUp] = useState(false);
   const { toast } = useToast();
+  
+  // Debug the request data
+  console.log('VendorAuth received request:', request);
+  console.log('Request company name:', request?.requesterCompany);
 
   const form = useForm<VendorAuthFormData>({
     resolver: zodResolver(vendorAuthSchema),
