@@ -87,6 +87,13 @@ export default function Home() {
   const { data: vendorRequests = [], refetch: refetchRequests } = useQuery({
     queryKey: ['/api/onboarding-requests'],
     enabled: !!user,
+    onSuccess: (data) => {
+      console.log('API response received:', data);
+      if (data && data.length > 0) {
+        console.log('First request data:', data[0]);
+        console.log('Link from first request:', data[0].link);
+      }
+    }
   });
 
   const selectedRequest = vendorRequests.find((req: any) => req.id === selectedRequestId);
