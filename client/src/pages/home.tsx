@@ -83,18 +83,33 @@ export default function Home() {
     }
   }, [user, isLoading, setLocation]);
 
+  // Debug user state
+  console.log('User state:', { user, isLoading });
+
   // Fetch onboarding requests from API
-  const { data: vendorRequests = [], refetch: refetchRequests } = useQuery({
+  const { data: vendorRequests = [], refetch: refetchRequests, isLoading: isRequestsLoading, error: requestsError } = useQuery({
     queryKey: ['/api/onboarding-requests'],
     enabled: !!user,
-    onSuccess: (data) => {
-      console.log('API response received:', data);
-      if (data && data.length > 0) {
-        console.log('First request data:', data[0]);
-        console.log('Link from first request:', data[0].link);
+  });
+
+  // Debug API response
+  useEffect(() => {
+    if (vendorRequests && Array.isArray(vendorRequests)) {
+      console.log('API response received:', vendorRequests);
+      if (vendorRequests.length > 0) {
+        console.log('First request data:', vendorRequests[0]);
+        console.log('Link from first request:', (vendorRequests[0] as any).link);
       }
     }
-  });
+  }, [vendorRequests]);
+
+  useEffect(() => {
+    if (requestsError) {
+      console.error('API error:', requestsError);
+    }
+  }, [requestsError]);
+
+  console.log('Requests query state:', { isRequestsLoading, requestsError, dataLength: Array.isArray(vendorRequests) ? vendorRequests.length : 0 });
 
   const selectedRequest = vendorRequests.find((req: any) => req.id === selectedRequestId);
 
