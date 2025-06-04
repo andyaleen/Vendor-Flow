@@ -154,8 +154,10 @@ export default function Home() {
   };
 
   const copyToClipboard = async (text: string) => {
+    console.log('copyToClipboard called with:', text);
     try {
       if (!text) {
+        console.log('No text provided');
         toast({
           title: "Error",
           description: "No link available to copy.",
@@ -164,6 +166,7 @@ export default function Home() {
         return;
       }
       
+      console.log('Using fallback copy method');
       // Use fallback method that works in all environments
       const textArea = document.createElement('textarea');
       textArea.value = text;
@@ -176,6 +179,8 @@ export default function Home() {
       
       const successful = document.execCommand('copy');
       document.body.removeChild(textArea);
+      
+      console.log('Copy command result:', successful);
       
       if (successful) {
         toast({
