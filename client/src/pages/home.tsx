@@ -131,12 +131,36 @@ export default function Home() {
     createRequestMutation.mutate(data);
   };
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    toast({
-      title: "Link copied!",
-      description: "The vendor onboarding link has been copied to your clipboard.",
-    });
+  const copyToClipboard = async (text: string) => {
+    try {
+      if (!text) {
+        toast({
+          title: "Error",
+          description: "No link available to copy.",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      await navigator.clipboard.writeText(text);
+      toast({
+        title: "Link copied!",
+        description: "The vendor onboarding link has been copied to your clipboard.",
+      });
+    } catch (error) {
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      
+      toast({
+        title: "Link copied!",
+        description: "The vendor onboarding link has been copied to your clipboard.",
+      });
+    }
   };
 
   if (!user) {
@@ -356,6 +380,8 @@ export default function Home() {
                             className="flex-1"
                             onClick={(e) => {
                               e.stopPropagation();
+                              console.log('Copy button clicked, request:', request);
+                              console.log('Link to copy:', request.link);
                               copyToClipboard(request.link);
                             }}
                           >
