@@ -185,7 +185,7 @@ export default function Home() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
-            <CardTitle>Welcome to VendorFlow</CardTitle>
+            <CardTitle>Welcome to Onbo</CardTitle>
             <CardDescription>Please sign in to continue</CardDescription>
           </CardHeader>
           <CardContent>
@@ -207,11 +207,8 @@ export default function Home() {
         {/* Sidebar */}
         <aside className="w-64 bg-white border-r border-gray-200 min-h-screen">
           <div className="p-6">
-            <div className="flex items-center space-x-3 mb-8">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <Building className="w-5 h-5 text-white" />
-              </div>
-              <img src="/logo.svg" alt="Onbo Logo" className="h-8 w-auto" />
+            <div className="flex items-center mb-8">
+              <h1 className="text-xl font-semibold text-gray-900">Onbo</h1>
             </div>
           </div>
           

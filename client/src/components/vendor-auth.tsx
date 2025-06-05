@@ -106,7 +106,7 @@ export function VendorAuth({ token, onAuthenticated, request }: VendorAuthProps)
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="mx-auto mb-4">
-            <span className="text-2xl font-bold text-blue-600">VendorFlow</span>
+            <span className="text-2xl font-bold text-blue-600">Onbo</span>
           </div>
           <CardTitle className="text-2xl">
             {isSignUp ? "Create Your Account" : 
