@@ -35,6 +35,7 @@ try {
     env: { ...process.env },
     cwd: __dirname
   });
+  
   // Build backend
   console.log('Building backend with esbuild...');
   execSync('npx esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist', { 
@@ -43,9 +44,9 @@ try {
     cwd: __dirname
   });
 
-  // Build Vercel handler
-  console.log('Building Vercel handler...');
-  execSync('npx esbuild vercel-handler.ts --platform=node --packages=external --bundle --format=esm --outfile=dist/vercel-handler.js', { 
+  // Build API endpoints for Vercel
+  console.log('Building API endpoints...');
+  execSync('npx esbuild api/index.ts --platform=node --packages=external --bundle --format=esm --outfile=api/index.js', { 
     stdio: 'inherit', 
     env: { ...process.env },
     cwd: __dirname
