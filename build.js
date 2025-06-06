@@ -10,14 +10,15 @@ const __dirname = path.dirname(__filename);
 const envPath = path.join(__dirname, '.env');
 if (fs.existsSync(envPath)) {
   const envContent = fs.readFileSync(envPath, 'utf8');
-  const envVars = {};
   
   envContent.split('\n').forEach(line => {
-    const match = line.match(/^([^=]+)=(.*)$/);
-    if (match) {
-      const [, key, value] = match;
-      envVars[key] = value;
-      process.env[key] = value;
+    const trimmedLine = line.trim();
+    if (trimmedLine && !trimmedLine.startsWith('#')) {
+      const match = trimmedLine.match(/^([^=]+)=(.*)$/);
+      if (match) {
+        const [, key, value] = match;
+        process.env[key] = value;
+      }
     }
   });
   
@@ -26,11 +27,25 @@ if (fs.existsSync(envPath)) {
   console.log('VITE_SUPABASE_ANON_KEY:', process.env.VITE_SUPABASE_ANON_KEY ? 'SET' : 'NOT SET');
 }
 
-// Run the build commands
-console.log('Building frontend with Vite...');
-execSync('vite build', { stdio: 'inherit', env: process.env });
+try {
+  // Build frontend
+  console.log('Building frontend with Vite...');
+  execSync('npx vite build', { 
+    stdio: 'inherit', 
+    env: { ...process.env },
+    cwd: __dirname
+  });
 
-console.log('Building backend with esbuild...');
-execSync('esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist', { stdio: 'inherit', env: process.env });
+  // Build backend
+  console.log('Building backend with esbuild...');
+  execSync('npx esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist', { 
+    stdio: 'inherit', 
+    env: { ...process.env },
+    cwd: __dirname
+  });
 
-console.log('Build completed successfully!');
+  console.log('Build completed successfully!');
+} catch (error) {
+  console.error('Build failed:', error.message);
+  process.exit(1);
+}
