@@ -27,6 +27,53 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Vendor chunk for React ecosystem
+          'react-vendor': ['react', 'react-dom'],
+          // UI library chunk for Radix UI components
+          'ui-vendor': [
+            '@radix-ui/react-accordion',
+            '@radix-ui/react-alert-dialog',
+            '@radix-ui/react-avatar',
+            '@radix-ui/react-checkbox',
+            '@radix-ui/react-dialog',
+            '@radix-ui/react-dropdown-menu',
+            '@radix-ui/react-label',
+            '@radix-ui/react-popover',
+            '@radix-ui/react-select',
+            '@radix-ui/react-tabs',
+            '@radix-ui/react-toast',
+            '@radix-ui/react-tooltip'
+          ],
+          // Animation and utility libraries
+          'utils-vendor': [
+            'framer-motion',
+            'lucide-react',
+            'class-variance-authority',
+            'clsx',
+            'tailwind-merge'
+          ],
+          // Data management libraries
+          'data-vendor': [
+            '@tanstack/react-query',
+            '@supabase/supabase-js',
+            'drizzle-orm',
+            'zod'
+          ],
+          // Form and date utilities
+          'form-vendor': [
+            'react-hook-form',
+            '@hookform/resolvers',
+            'date-fns',
+            'react-day-picker'
+          ]
+        }
+      }
+    },
+    // Increase chunk size warning limit to 1000kb
+    chunkSizeWarningLimit: 1000,
   },
   server: {
     host: "0.0.0.0",
