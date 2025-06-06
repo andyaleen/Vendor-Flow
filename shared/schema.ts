@@ -70,6 +70,62 @@ export const onboardingConsent = pgTable("onboarding_consent", {
   sharedAt: timestamp("shared_at").defaultNow(),
 });
 
+// Document sharing chains table
+export const documentSharingChains = pgTable("document_sharing_chains", {
+  id: serial("id").primaryKey(),
+  documentId: integer("document_id").references(() => documents.id).notNull(),
+  fromUserId: integer("from_user_id").references(() => users.id).notNull(),
+  toUserId: integer("to_user_id").references(() => users.id).notNull(),
+  parentChainId: integer("parent_chain_id"), // Self-referencing, will add foreign key constraint separately
+  shareToken: text("share_token").unique().notNull(),
+  shareReason: text("share_reason"),
+  permissions: jsonb("permissions").notNull().default('{"canRelay": true, "canView": true, "canDownload": true}'),
+  expiresAt: timestamp("expires_at"),
+  sharedAt: timestamp("shared_at").defaultNow(),
+  status: text("status").notNull().default("active"), // active, revoked, expired
+});
+
+// User to user sharing permissions table
+export const userSharingPermissions = pgTable("user_sharing_permissions", {
+  id: serial("id").primaryKey(),
+  granterUserId: integer("granter_user_id").references(() => users.id).notNull(),
+  granteeUserId: integer("grantee_user_id").references(() => users.id).notNull(),
+  documentTypes: text("document_types").array().notNull(), // ['w9', 'insurance', 'banking', 'all']
+  canRelay: boolean("can_relay").default(true),
+  canViewHistory: boolean("can_view_history").default(false),
+  maxChainDepth: integer("max_chain_depth").default(3),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  status: text("status").notNull().default("active"), // active, revoked
+});
+
+// Document provenance tracking table
+export const documentProvenance = pgTable("document_provenance", {
+  id: serial("id").primaryKey(),
+  documentId: integer("document_id").references(() => documents.id).notNull(),
+  originalOwnerId: integer("original_owner_id").references(() => users.id).notNull(),
+  currentHolderId: integer("current_holder_id").references(() => users.id).notNull(),
+  chainDepth: integer("chain_depth").notNull().default(0),
+  accessPath: jsonb("access_path").notNull(), // Array of user IDs showing the sharing path
+  lastSharedAt: timestamp("last_shared_at").defaultNow(),
+  totalShares: integer("total_shares").default(0),
+  isOriginal: boolean("is_original").default(true),
+});
+
+// Sharing request notifications table
+export const sharingNotifications = pgTable("sharing_notifications", {
+  id: serial("id").primaryKey(),
+  fromUserId: integer("from_user_id").references(() => users.id).notNull(),
+  toUserId: integer("to_user_id").references(() => users.id).notNull(),
+  documentId: integer("document_id").references(() => documents.id),
+  chainId: integer("chain_id").references(() => documentSharingChains.id),
+  notificationType: text("notification_type").notNull(), // 'share_request', 'share_accepted', 'share_rejected', 'chain_complete'
+  message: text("message").notNull(),
+  metadata: jsonb("metadata"),
+  isRead: boolean("is_read").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Insert schemas
 export const insertPartnerSchema = createInsertSchema(partners).omit({
   id: true,
@@ -88,15 +144,52 @@ export const insertDocumentSchema = createInsertSchema(documents).omit({
   uploadedAt: true,
 });
 
+export const insertDocumentSharingChainSchema = createInsertSchema(documentSharingChains).omit({
+  id: true,
+  sharedAt: true,
+});
+
+export const insertUserSharingPermissionSchema = createInsertSchema(userSharingPermissions).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertDocumentProvenanceSchema = createInsertSchema(documentProvenance).omit({
+  id: true,
+  lastSharedAt: true,
+});
+
+export const insertSharingNotificationSchema = createInsertSchema(sharingNotifications).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Types
 export type Partner = typeof partners.$inferSelect;
 export type InsertPartner = z.infer<typeof insertPartnerSchema>;
+
+// Vendor is an alias for Partner for backward compatibility
+export type Vendor = Partner;
+export type InsertVendor = InsertPartner;
 
 export type OnboardingRequest = typeof onboardingRequests.$inferSelect;
 export type InsertOnboardingRequest = z.infer<typeof insertOnboardingRequestSchema>;
 
 export type Document = typeof documents.$inferSelect;
 export type InsertDocument = z.infer<typeof insertDocumentSchema>;
+
+export type DocumentSharingChain = typeof documentSharingChains.$inferSelect;
+export type InsertDocumentSharingChain = z.infer<typeof insertDocumentSharingChainSchema>;
+
+export type UserSharingPermission = typeof userSharingPermissions.$inferSelect;
+export type InsertUserSharingPermission = z.infer<typeof insertUserSharingPermissionSchema>;
+
+export type DocumentProvenance = typeof documentProvenance.$inferSelect;
+export type InsertDocumentProvenance = z.infer<typeof insertDocumentProvenanceSchema>;
+
+export type SharingNotification = typeof sharingNotifications.$inferSelect;
+export type InsertSharingNotification = z.infer<typeof insertSharingNotificationSchema>;
 
 // Form validation schemas
 export const companyInfoSchema = z.object({
@@ -115,7 +208,7 @@ export const companyInfoSchema = z.object({
   primaryContactPhone: z.string().min(1, "Phone number is required"),
   arContactName: z.string().optional(),
   arContactEmail: z.string().email().optional().or(z.literal("")),
-  sameAsPRIMARY: z.boolean().optional(),
+  sameAsPrimary: z.boolean().optional(),
 });
 
 export const createRequestSchema = z.object({
@@ -137,9 +230,48 @@ export const registerSchema = z.object({
   companyName: z.string().min(1, "Company name is required"),
 });
 
+export const userOnboardingSchema = z.object({
+  email: z.string().email("Valid email is required"),
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(1, "Last name is required"),
+});
+
 export const vendorAuthSchema = z.object({
-  username: z.string().min(1, "Username is required"),
+  username: z.string().min(1, "Username is required").optional(),
+  email: z.string().email("Please enter a valid email").optional(),
   password: z.string().min(6, "Password must be at least 6 characters"),
+  firstName: z.string().optional(),
+  lastName: z.string().optional(),
+  companyName: z.string().optional(),
+}).refine((data) => data.username || data.email, {
+  message: "Either username or email is required",
+  path: ["username"],
+});
+
+// Chain sharing validation schemas
+export const shareDocumentSchema = z.object({
+  documentId: z.number().int().positive("Document ID is required"),
+  toUserId: z.number().int().positive("Recipient user ID is required"),
+  shareReason: z.string().optional(),
+  permissions: z.object({
+    canRelay: z.boolean().default(true),
+    canView: z.boolean().default(true),
+    canDownload: z.boolean().default(true),
+  }).default({}),
+  expiresAt: z.string().datetime().optional(),
+});
+
+export const updateSharingPermissionSchema = z.object({
+  granteeUserId: z.number().int().positive("Grantee user ID is required"),
+  documentTypes: z.array(z.string()).min(1, "At least one document type is required"),
+  canRelay: z.boolean().default(true),
+  canViewHistory: z.boolean().default(false),
+  maxChainDepth: z.number().int().min(1).max(10).default(3),
+});
+
+export const chainAccessRequestSchema = z.object({
+  shareToken: z.string().min(1, "Share token is required"),
+  requestReason: z.string().optional(),
 });
 
 // Sessions table (currently unused with Supabase auth)
@@ -164,6 +296,7 @@ export const users = pgTable("users", {
   role: varchar("role").default("company_admin").notNull(), // 'company_admin', 'vendor'
   isEmailVerified: boolean("is_email_verified").default(false),
   profileImageUrl: varchar("profile_image_url"),
+  isComplete: boolean("is_complete").default(false),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -175,4 +308,8 @@ export type CompanyInfoFormData = z.infer<typeof companyInfoSchema>;
 export type CreateRequestFormData = z.infer<typeof createRequestSchema>;
 export type LoginFormData = z.infer<typeof loginSchema>;
 export type RegisterFormData = z.infer<typeof registerSchema>;
+export type UserOnboardingFormData = z.infer<typeof userOnboardingSchema>;
 export type VendorAuthFormData = z.infer<typeof vendorAuthSchema>;
+export type ShareDocumentFormData = z.infer<typeof shareDocumentSchema>;
+export type UpdateSharingPermissionFormData = z.infer<typeof updateSharingPermissionSchema>;
+export type ChainAccessRequestFormData = z.infer<typeof chainAccessRequestSchema>;

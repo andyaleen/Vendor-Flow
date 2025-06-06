@@ -10,7 +10,7 @@ import type { OnboardingRequest, Vendor, Document, CompanyInfoFormData } from "@
 
 interface OnboardingAccordionProps {
   request: OnboardingRequest;
-  vendor?: Vendor;
+  vendor?: Vendor | null;
   documents: Document[];
   userDocuments?: {
     w9: boolean;
@@ -112,23 +112,17 @@ export function OnboardingAccordion({
                 dbaName: vendor.dbaName || "",
                 taxId: vendor.taxId || "",
                 businessType: vendor.businessType || "",
-                address: vendor.address || {
-                  street: "",
-                  city: "",
-                  state: "",
-                  postalCode: "",
-                  country: "US"
-                },
-                primaryContact: vendor.primaryContact || {
-                  name: "",
-                  title: "",
-                  email: "",
-                  phone: ""
-                },
-                arContact: vendor.arContact || {
-                  name: "",
-                  email: ""
-                }
+                street: vendor.street || "",
+                city: vendor.city || "",
+                state: vendor.state || "",
+                postalCode: vendor.postalCode || "",
+                country: vendor.country || "US",
+                primaryContactName: vendor.primaryContactName || "",
+                primaryContactTitle: vendor.primaryContactTitle || "",
+                primaryContactEmail: vendor.primaryContactEmail || "",
+                primaryContactPhone: vendor.primaryContactPhone || "",
+                arContactName: vendor.arContactName || "",
+                arContactEmail: vendor.arContactEmail || ""
               } : undefined}
             />
           </div>
@@ -141,7 +135,7 @@ export function OnboardingAccordion({
             {request.requestedFields.includes("w9") && (
               <div className="border rounded-lg p-4">
                 <h4 className="font-medium mb-3">W-9 Tax Form</h4>
-                {userDocuments.hasW9 ? (
+                {userDocuments?.w9 ? (
                   <div className="bg-blue-50 p-4 rounded border border-blue-200">
                     <p className="text-blue-800 mb-3">
                       You've already uploaded a W-9. Would you like to share it with {request.requesterCompany}?
@@ -171,7 +165,7 @@ export function OnboardingAccordion({
             {request.requestedFields.includes("insurance") && (
               <div className="border rounded-lg p-4">
                 <h4 className="font-medium mb-3">Certificate of Insurance</h4>
-                {userDocuments.hasInsurance ? (
+                {userDocuments?.insurance ? (
                   <div className="bg-blue-50 p-4 rounded border border-blue-200">
                     <p className="text-blue-800 mb-3">
                       You've already uploaded insurance certificates. Would you like to share them with {request.requesterCompany}?
@@ -201,7 +195,7 @@ export function OnboardingAccordion({
             {request.requestedFields.includes("banking") && (
               <div className="border rounded-lg p-4">
                 <h4 className="font-medium mb-3">Banking Information</h4>
-                {userDocuments.hasBanking ? (
+                {userDocuments?.banking ? (
                   <div className="bg-blue-50 p-4 rounded border border-blue-200">
                     <p className="text-blue-800 mb-3">
                       You've already provided banking details. Would you like to share them with {request.requesterCompany}?

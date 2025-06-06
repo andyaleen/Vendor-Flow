@@ -1,7 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
+import type { User } from "@shared/schema";
 
 export function useProfile() {
-  const { data: profile, isLoading, error } = useQuery({
+  const { data: profile, isLoading, error } = useQuery<User>({
     queryKey: ["/api/user/profile"],
     retry: false,
   });

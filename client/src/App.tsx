@@ -12,10 +12,13 @@ import Onboarding from "@/pages/onboarding";
 import UserOnboarding from "@/pages/user-onboarding";
 import LoggedOut from "@/pages/logged-out";
 import VendorOnboarding from "@/components/VendorOnboarding";
-
+import AuthCallback from "@/pages/auth/callback";
 import EditEventType from "@/pages/edit-event-type";
 import ProfileSetup from "@/pages/profile-setup";
+import Settings from "@/pages/settings";
+import Vendors from "@/pages/vendors";
 import NotFound from "@/pages/not-found";
+
 
 function Router() {
   const { user, isLoading } = useAuth();
@@ -36,9 +39,13 @@ function Router() {
       <Route path="/" component={user ? Home : Landing} />
       <Route path="/login" component={Login} />
       <Route path="/signup" component={Signup} />
+      <Route path="/auth/callback" component={AuthCallback} />
       <Route path="/logged-out" component={LoggedOut} />
       <Route path="/dashboard" component={user ? Home : Login} />
+      <Route path="/profile" component={user ? ProfileSetup : Login} />
       <Route path="/profile-setup" component={user ? ProfileSetup : Login} />
+      <Route path="/settings" component={user ? Settings : Login} />
+      <Route path="/vendors" component={user ? Vendors : Login} />
       <Route path="/edit-event-type/:id" component={user ? EditEventType : Login} />
       <Route path="/onboarding/:token" component={Onboarding} />
       <Route path="/vendor-onboarding" component={VendorOnboarding} />

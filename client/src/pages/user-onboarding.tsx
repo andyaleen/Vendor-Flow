@@ -1,8 +1,8 @@
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useLocation } from "wouter";
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,15 +10,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { userOnboardingSchema, type UserOnboardingFormData } from "@shared/schema";
 import { z } from "zod";
 import { Building, FileText, Shield, CreditCard, FileCheck, CheckCircle } from "lucide-react";
-
-const userOnboardingSchema = z.object({
-  // removed companyName
-  firstName: z.string().min(1, "First name is required"),
-  lastName: z.string().min(1, "Last name is required"),
-  email: z.string().email("Please enter a valid email address"),
-});
 
 const businessInfoSchema = z.object({
   legalBusinessName: z.string().min(1, "Legal business name is required"),
@@ -29,7 +23,6 @@ const businessInfoSchema = z.object({
   companyEmail: z.string().email("Please enter a valid company email"),
 });
 
-type UserOnboardingFormData = z.infer<typeof userOnboardingSchema>;
 type BusinessInfoFormData = z.infer<typeof businessInfoSchema>;
 
 const uploadOptions = [
@@ -79,7 +72,6 @@ export default function UserOnboarding() {
   const form = useForm<UserOnboardingFormData>({
     resolver: zodResolver(userOnboardingSchema),
     defaultValues: {
-      companyName: "",
       firstName: "",
       lastName: "",
       email: "",
@@ -99,7 +91,7 @@ export default function UserOnboarding() {
   });
 
   const createUserMutation = useMutation({
-    mutationFn: async (data: UserOnboardingFormData & BusinessInfoFormData) => {
+    mutationFn: async (data: UserOnboardingFormData & { selectedUploads: string[] }) => {
       return apiRequest("POST", "/api/user/setup", {
         ...data,
         selectedUploads,
@@ -124,16 +116,10 @@ export default function UserOnboarding() {
 
   const handleUserInfoSubmit = (data: UserOnboardingFormData) => {
     form.clearErrors();
-    // Complete signup with just basic info and redirect to dashboard
+    // Complete signup with user info and selected uploads
     createUserMutation.mutate({
       ...data,
-      // Provide default values for business info fields
-      legalBusinessName: "",
-      dbaName: "",
-      taxId: "",
-      businessAddress: "",
-      phoneNumber: "",
-      companyEmail: "",
+      selectedUploads,
     });
   };
 
@@ -146,7 +132,10 @@ export default function UserOnboarding() {
   const handleBusinessInfoSubmit = (data: BusinessInfoFormData) => {
     businessForm.clearErrors();
     const userData = form.getValues();
-    createUserMutation.mutate({ ...userData, ...data });
+    createUserMutation.mutate({ 
+      ...userData, 
+      selectedUploads 
+    });
   };
 
   const handleUploadToggle = (uploadId: string) => {
@@ -161,7 +150,10 @@ export default function UserOnboarding() {
 
   const handleComplete = () => {
     const formData = form.getValues();
-    createUserMutation.mutate(formData);
+    createUserMutation.mutate({
+      ...formData,
+      selectedUploads
+    });
   };
 
   if (step === 1) {
@@ -180,20 +172,6 @@ export default function UserOnboarding() {
           <CardContent>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(handleUserInfoSubmit)} className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="companyName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Company Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter your company name" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
                 <div className="grid grid-cols-2 gap-4">
                   <FormField
                     control={form.control}

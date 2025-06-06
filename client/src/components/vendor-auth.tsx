@@ -1,7 +1,7 @@
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,23 +9,13 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { supabase } from "@/lib/supabase";
-import { z } from "zod";
-
-const vendorAuthSchema = z.object({
-  email: z.string().email("Please enter a valid email"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-  firstName: z.string().optional(),
-  lastName: z.string().optional(),
-  companyName: z.string().optional(),
-});
-
-type VendorAuthFormData = z.infer<typeof vendorAuthSchema>;
+import { vendorAuthSchema, type VendorAuthFormData } from "@shared/schema";
 
 interface VendorAuthProps {
   token: string;
   onAuthenticated: (vendorData: any) => void;
   request?: {
-    requesterCompany: string;
+    requesterCompany: string | null;
   };
 }
 

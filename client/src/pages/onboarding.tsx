@@ -21,7 +21,7 @@ export default function Onboarding() {
   const queryClient = useQueryClient();
 
   // Fetch onboarding request data with token validation
-  const { data: requestData, isLoading, error } = useQuery({
+  const { data: requestResponse, isLoading, error } = useQuery({
     queryKey: [`/api/onboarding-requests/${token}`],
     enabled: !!token,
     retry: false, // Don't retry on expired tokens
@@ -39,10 +39,10 @@ export default function Onboarding() {
     enabled: isAuthenticated,
   });
 
-  const request: OnboardingRequest | null = requestData?.request || null;
-  const vendor: Vendor | null = requestData?.vendor || null;
-  const documents: Document[] = documentsData?.documents || [];
-  const userDocuments = userDocumentsData?.documents;
+  const request: OnboardingRequest | null = (requestResponse as any)?.request || null;
+  const vendor: Vendor | null = (requestResponse as any)?.vendor || null;
+  const documents: Document[] = (documentsData as Document[]) || [];
+  const userDocuments = userDocumentsData as {w9: boolean; insurance: boolean; banking: boolean} | undefined;
 
   // Handle vendor authentication
   const handleVendorAuthenticated = (data: any) => {
@@ -53,14 +53,11 @@ export default function Onboarding() {
   // Document consent mutation
   const consentMutation = useMutation({
     mutationFn: async (documentType: string) => {
-      return apiRequest('/api/document-consent', {
-        method: 'POST',
-        body: {
-          user_id: vendorData?.id || 1, // Use authenticated user ID
-          onboarding_request_id: request?.id,
-          document_type: documentType,
-          consented_at: new Date().toISOString()
-        }
+      return apiRequest("POST", '/api/document-consent', {
+        user_id: vendorData?.id || 1, // Use authenticated user ID
+        onboarding_request_id: request?.id,
+        document_type: documentType,
+        consented_at: new Date().toISOString()
       });
     },
     onSuccess: () => {

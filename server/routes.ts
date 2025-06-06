@@ -6,7 +6,10 @@ import {
   insertOnboardingRequestSchema, 
   companyInfoSchema,
   createRequestSchema,
-  insertDocumentSchema 
+  insertDocumentSchema,
+  shareDocumentSchema,
+  updateSharingPermissionSchema,
+  chainAccessRequestSchema
 } from "@shared/schema";
 import { randomBytes } from "crypto";
 import multer from "multer";
@@ -86,8 +89,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error("Error updating profile:", error);
       res.status(500).json({ 
         message: "Failed to update profile", 
-        error: error.message,
-        stack: error.stack 
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined
       });
     }
   });
@@ -95,18 +98,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // User setup endpoint for onboarding
   app.post("/api/user/setup", async (req, res) => {
     try {
-      const { companyName, firstName, lastName, email, selectedUploads } = req.body;
+      const { firstName, lastName, email, selectedUploads, supabaseUserId, companyName } = req.body;
       
-      // For now, just return success
-      // In a real app, you'd create the user account here
+      console.log("User setup request:", { firstName, lastName, email, selectedUploads, supabaseUserId, companyName });
+      
+      // Create user profile in the users table
+      const userData = {
+        email: email,
+        password: "", // Not stored since we use Supabase auth
+        firstName: firstName || null,
+        lastName: lastName || null,
+        companyName: companyName || null, // Use the provided company name
+        role: "company_admin" as const,
+        isEmailVerified: true, // Assuming email is verified via Supabase
+        profileImageUrl: null,
+        isComplete: false, // Will be true after business info is completed
+      };
+      
+      const user = await storage.createUser(userData);
+      
+      console.log("User created successfully:", user);
+      
       res.json({ 
         success: true, 
         message: "User setup completed",
-        user: { companyName, firstName, lastName, email, selectedUploads }
+        user: {
+          id: user.id,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          companyName: user.companyName,
+          isComplete: user.isComplete,
+          selectedUploads
+        }
       });
     } catch (error) {
       console.error("Error setting up user:", error);
-      res.status(500).json({ message: "Failed to set up user" });
+      res.status(500).json({ 
+        message: "Failed to set up user",
+        error: error instanceof Error ? error.message : String(error)
+      });
     }
   });
   
@@ -143,7 +174,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         link: `${req.protocol}://${req.get('host')}/onboarding/${request.token}`
       });
     } catch (error: any) {
-      res.status(400).json({ error: error.message });
+      res.status(400).json({ error: error instanceof Error ? error.message : String(error) });
     }
   });
 
@@ -183,7 +214,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(onboardingType);
     } catch (error: any) {
       console.log('Error fetching onboarding type:', error);
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ error: error instanceof Error ? error.message : String(error) });
     }
   });
 
@@ -205,8 +236,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       let vendor = null;
-      if (request.vendorId) {
-        vendor = await storage.getVendor(request.vendorId);
+      if (request.partnerId) {
+        vendor = await storage.getPartner(request.partnerId);
       }
       
       const responseData = { 
@@ -225,7 +256,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(200).json(responseData);
     } catch (error: any) {
       console.log('Error fetching request:', error);
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ error: error instanceof Error ? error.message : String(error) });
     }
   });
 
@@ -251,7 +282,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (request.status === 'completed') {
         return res.status(409).json({ 
           error: "Onboarding has already been completed",
-          completedAt: request.updatedAt 
+          completedAt: new Date()
         });
       }
       
@@ -261,13 +292,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       let vendor = null;
-      if (request.vendorId) {
-        vendor = await storage.getVendor(request.vendorId);
+      if (request.partnerId) {
+        vendor = await storage.getPartner(request.partnerId);
       }
       
       res.json({ request, vendor });
     } catch (error: any) {
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ error: error instanceof Error ? error.message : String(error) });
     }
   });
 
@@ -288,9 +319,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const validatedData = companyInfoSchema.parse(req.body);
       
       let vendor;
-      if (request.vendorId) {
+      if (request.partnerId) {
         // Update existing vendor
-        vendor = await storage.updateVendor(request.vendorId, {
+        vendor = await storage.updatePartner(request.partnerId, {
           companyName: validatedData.companyName,
           dbaName: validatedData.dbaName || null,
           taxId: validatedData.taxId,
@@ -304,12 +335,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
           primaryContactTitle: validatedData.primaryContactTitle,
           primaryContactEmail: validatedData.primaryContactEmail,
           primaryContactPhone: validatedData.primaryContactPhone,
-          arContactName: validatedData.sameAsPRIMARY ? validatedData.primaryContactName : validatedData.arContactName,
-          arContactEmail: validatedData.sameAsPRIMARY ? validatedData.primaryContactEmail : validatedData.arContactEmail,
+          arContactName: validatedData.sameAsPrimary ? validatedData.primaryContactName : validatedData.arContactName,
+          arContactEmail: validatedData.sameAsPrimary ? validatedData.primaryContactEmail : validatedData.arContactEmail,
         });
       } else {
         // Create new vendor
-        vendor = await storage.createVendor({
+        vendor = await storage.createPartner({
           companyName: validatedData.companyName,
           dbaName: validatedData.dbaName || null,
           taxId: validatedData.taxId,
@@ -323,22 +354,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
           primaryContactTitle: validatedData.primaryContactTitle,
           primaryContactEmail: validatedData.primaryContactEmail,
           primaryContactPhone: validatedData.primaryContactPhone,
-          arContactName: validatedData.sameAsPRIMARY ? validatedData.primaryContactName : validatedData.arContactName,
-          arContactEmail: validatedData.sameAsPRIMARY ? validatedData.primaryContactEmail : validatedData.arContactEmail,
+          arContactName: validatedData.sameAsPrimary ? validatedData.primaryContactName : validatedData.arContactName,
+          arContactEmail: validatedData.sameAsPrimary ? validatedData.primaryContactEmail : validatedData.arContactEmail,
           username: null,
           password: null,
         });
         
         // Link vendor to request
         await storage.updateOnboardingRequest(request.id, { 
-          vendorId: vendor.id,
+          partnerId: vendor.id,
           currentStep: 2 
         });
       }
       
       res.json({ success: true, vendor });
     } catch (error: any) {
-      res.status(400).json({ error: error.message });
+      res.status(400).json({ error: error instanceof Error ? error.message : String(error) });
     }
   });
 
@@ -364,7 +395,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "Onboarding request not found" });
       }
       
-      if (!request.vendorId) {
+      if (!request.partnerId) {
         return res.status(400).json({ error: "Complete company information first" });
       }
 
@@ -380,7 +411,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const fileInfo = getFileInfo(req.file);
       
       const document = await storage.createDocument({
-        vendorId: request.vendorId,
+        partnerId: request.partnerId,
         requestId: request.id,
         documentType,
         fileName: fileInfo.fileName,
@@ -404,7 +435,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.error('Error deleting uploaded file:', deleteError);
         }
       }
-      res.status(400).json({ error: error.message });
+      res.status(400).json({ error: error instanceof Error ? error.message : String(error) });
     }
   });
 
@@ -461,7 +492,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const documents = await storage.getDocumentsByRequest(request.id);
       res.json({ documents });
     } catch (error: any) {
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ error: error instanceof Error ? error.message : String(error) });
     }
   });
 
@@ -477,7 +508,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json({ success: true });
     } catch (error: any) {
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ error: error instanceof Error ? error.message : String(error) });
     }
   });
 
@@ -498,7 +529,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json({ success: true, message: "Onboarding completed successfully" });
     } catch (error: any) {
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ error: error instanceof Error ? error.message : String(error) });
     }
   });
 
@@ -516,7 +547,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await storage.updateOnboardingRequest(request.id, { currentStep: step });
       res.json({ success: true });
     } catch (error: any) {
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ error: error instanceof Error ? error.message : String(error) });
     }
   });
 
@@ -524,7 +555,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/onboarding-requests", async (req: any, res) => {
     try {
       // Get all onboarding requests from storage and format them for the dashboard
-      const allRequests = Array.from((storage as any).onboardingRequests.values());
+      const allRequests = await storage.getAllOnboardingRequests();
       
       const requests = allRequests.map((request: any) => ({
         id: request.id,
@@ -567,20 +598,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Get vendor information
-      const vendor = await storage.getVendor(vendorId);
+      const vendor = await storage.getPartner(vendorId);
       if (!vendor) {
         return res.status(404).json({ error: "Vendor not found" });
       }
 
       // Get vendor documents if sharing is enabled
-      let documents = [];
+      let documents: any[] = [];
       if (shareDocuments) {
-        documents = await storage.getDocumentsByVendor(vendorId);
+        documents = await storage.getDocumentsByPartner(vendorId);
       }
 
       // Link vendor to the onboarding request and mark as completed
       await storage.updateOnboardingRequest(onboardingRequest.id, {
-        vendorId: vendorId,
+        partnerId: vendorId,
         status: 'completed',
         currentStep: 4
       });
@@ -594,9 +625,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
             dbaName: vendor.dbaName,
             taxId: vendor.taxId,
             businessType: vendor.businessType,
-            address: vendor.address,
-            primaryContact: vendor.primaryContact,
-            arContact: vendor.arContact
+            address: `${vendor.street}, ${vendor.city}, ${vendor.state} ${vendor.postalCode}, ${vendor.country}`,
+            primaryContact: {
+              name: vendor.primaryContactName,
+              title: vendor.primaryContactTitle,
+              email: vendor.primaryContactEmail,
+              phone: vendor.primaryContactPhone
+            },
+            arContact: {
+              name: vendor.arContactName,
+              email: vendor.arContactEmail
+            }
           },
           documentsShared: shareDocuments ? documents.map(doc => ({
             id: doc.id,
@@ -621,7 +660,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const vendorId = req.vendor.id;
       
       // For now, return empty array - can be enhanced with dedicated storage
-      const sharingHistory = [];
+      const sharingHistory: any[] = [];
 
       res.json({
         success: true,
@@ -655,8 +694,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Get vendor information to show what will be shared
-      const vendor = await storage.getVendor(req.vendor.id);
-      const documents = await storage.getDocumentsByVendor(req.vendor.id);
+      const vendor = await storage.getPartner(req.vendor.id);
+      const documents = await storage.getDocumentsByPartner(req.vendor.id);
 
       res.json({
         success: true,
@@ -676,6 +715,347 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error("Error validating share request:", error);
       res.status(500).json({ error: "Failed to validate sharing request" });
+    }
+  });
+
+  // ===========================================
+  // CHAIN SHARING API ENDPOINTS
+  // ===========================================
+
+  // Share document with another user (create sharing chain)
+  app.post("/api/documents/:documentId/share", async (req: any, res) => {
+    try {
+      const { documentId } = req.params;
+      const validatedData = shareDocumentSchema.parse(req.body);
+      
+      // For demo purposes, using mock data
+      const mockUserId = 1; // Current user
+      
+      // Generate unique share token
+      const shareToken = randomBytes(32).toString('hex');
+      
+      // Mock sharing chain creation
+      const sharingChain = {
+        id: Date.now(), // Simple ID generation for demo
+        documentId: parseInt(documentId),
+        fromUserId: mockUserId,
+        toUserId: validatedData.toUserId,
+        shareToken,
+        shareReason: validatedData.shareReason || null,
+        permissions: validatedData.permissions,
+        expiresAt: validatedData.expiresAt ? new Date(validatedData.expiresAt) : null,
+        sharedAt: new Date(),
+        status: 'active'
+      };
+
+      res.json({
+        success: true,
+        chain: sharingChain,
+        shareLink: `${req.protocol}://${req.get('host')}/shared/${shareToken}`
+      });
+    } catch (error: any) {
+      console.error("Error creating sharing chain:", error);
+      res.status(400).json({ error: error instanceof Error ? error.message : String(error) });
+    }
+  });
+
+  // Access shared document via token
+  app.get("/api/shared/:token", async (req: any, res) => {
+    try {
+      const { token } = req.params;
+      
+      // Mock chain validation
+      const mockChain = {
+        id: 1,
+        documentId: 1,
+        fromUserId: 1,
+        toUserId: 2,
+        shareToken: token,
+        status: 'active',
+        permissions: { canRelay: true, canView: true, canDownload: true },
+        expiresAt: null,
+        sharedAt: new Date()
+      };
+
+      // Mock document data
+      const mockDocument = {
+        id: 1,
+        fileName: 'sample-w9.pdf',
+        documentType: 'w9',
+        fileSize: 2048,
+        uploadedAt: new Date()
+      };
+
+      // Mock chain path (for demonstration)
+      const chainPath = [1, 2]; // User 1 → User 2
+      
+      res.json({
+        success: true,
+        document: mockDocument,
+        chain: mockChain,
+        chainPath,
+        chainDepth: chainPath.length - 1
+      });
+    } catch (error: any) {
+      console.error("Error accessing shared document:", error);
+      res.status(500).json({ error: "Failed to access shared document" });
+    }
+  });
+
+  // Relay share - share a document you received to another user
+  app.post("/api/shared/:token/relay", async (req: any, res) => {
+    try {
+      const { token } = req.params;
+      const validatedData = shareDocumentSchema.parse(req.body);
+      
+      // Mock current user
+      const mockUserId = 2;
+      
+      // Validate relay permissions (mock)
+      const parentChain = {
+        id: 1,
+        permissions: { canRelay: true, canView: true, canDownload: true }
+      };
+
+      if (!parentChain.permissions.canRelay) {
+        return res.status(403).json({ error: "You don't have permission to relay this document" });
+      }
+
+      // Generate new share token for relay
+      const relayToken = randomBytes(32).toString('hex');
+      
+      // Create relay chain
+      const relayChain = {
+        id: Date.now(),
+        documentId: 1, // From parent chain
+        fromUserId: mockUserId,
+        toUserId: validatedData.toUserId,
+        parentChainId: parentChain.id,
+        shareToken: relayToken,
+        shareReason: validatedData.shareReason || null,
+        permissions: validatedData.permissions,
+        expiresAt: validatedData.expiresAt ? new Date(validatedData.expiresAt) : null,
+        sharedAt: new Date(),
+        status: 'active'
+      };
+
+      res.json({
+        success: true,
+        chain: relayChain,
+        shareLink: `${req.protocol}://${req.get('host')}/shared/${relayToken}`,
+        chainPath: [1, 2, validatedData.toUserId] // Extended chain
+      });
+    } catch (error: any) {
+      console.error("Error relaying document:", error);
+      res.status(400).json({ error: error instanceof Error ? error.message : String(error) });
+    }
+  });
+
+  // Get sharing chain history for a document
+  app.get("/api/documents/:documentId/chain-history", async (req: any, res) => {
+    try {
+      const { documentId } = req.params;
+      
+      // Mock chain history data
+      const chainHistory = [
+        {
+          id: 1,
+          fromUser: { id: 1, name: "John Doe", company: "Company A" },
+          toUser: { id: 2, name: "Jane Smith", company: "Company B" },
+          sharedAt: new Date(Date.now() - 24 * 60 * 60 * 1000), // 1 day ago
+          status: 'active',
+          permissions: { canRelay: true, canView: true, canDownload: true }
+        },
+        {
+          id: 2,
+          fromUser: { id: 2, name: "Jane Smith", company: "Company B" },
+          toUser: { id: 3, name: "Bob Johnson", company: "Company C" },
+          sharedAt: new Date(Date.now() - 12 * 60 * 60 * 1000), // 12 hours ago
+          status: 'active',
+          permissions: { canRelay: false, canView: true, canDownload: true },
+          parentChainId: 1
+        }
+      ];
+
+      const provenance = {
+        originalOwner: { id: 1, name: "John Doe", company: "Company A" },
+        currentDepth: 2,
+        totalShares: 2,
+        lastSharedAt: new Date(Date.now() - 12 * 60 * 60 * 1000)
+      };
+
+      res.json({
+        success: true,
+        chainHistory,
+        provenance,
+        visualizationData: {
+          nodes: [
+            { id: 1, name: "John Doe", company: "Company A", type: "original" },
+            { id: 2, name: "Jane Smith", company: "Company B", type: "relay" },
+            { id: 3, name: "Bob Johnson", company: "Company C", type: "endpoint" }
+          ],
+          edges: [
+            { from: 1, to: 2, label: "Direct Share", date: chainHistory[0].sharedAt },
+            { from: 2, to: 3, label: "Relay Share", date: chainHistory[1].sharedAt }
+          ]
+        }
+      });
+    } catch (error: any) {
+      console.error("Error fetching chain history:", error);
+      res.status(500).json({ error: "Failed to fetch chain history" });
+    }
+  });
+
+  // Get user's sharing permissions
+  app.get("/api/users/:userId/sharing-permissions", async (req: any, res) => {
+    try {
+      const { userId } = req.params;
+      
+      // Mock sharing permissions
+      const permissions = [
+        {
+          id: 1,
+          granteeUser: { id: 2, name: "Jane Smith", company: "Company B" },
+          documentTypes: ["w9", "insurance"],
+          canRelay: true,
+          canViewHistory: false,
+          maxChainDepth: 3,
+          status: 'active',
+          createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+        },
+        {
+          id: 2,
+          granteeUser: { id: 3, name: "Bob Johnson", company: "Company C" },
+          documentTypes: ["banking"],
+          canRelay: false,
+          canViewHistory: true,
+          maxChainDepth: 1,
+          status: 'active',
+          createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000)
+        }
+      ];
+
+      res.json({
+        success: true,
+        permissions
+      });
+    } catch (error: any) {
+      console.error("Error fetching sharing permissions:", error);
+      res.status(500).json({ error: "Failed to fetch sharing permissions" });
+    }
+  });
+
+  // Update user sharing permissions
+  app.put("/api/users/:userId/sharing-permissions/:permissionId", async (req: any, res) => {
+    try {
+      const { userId, permissionId } = req.params;
+      const validatedData = updateSharingPermissionSchema.parse(req.body);
+      
+      // Mock permission update
+      const updatedPermission = {
+        id: parseInt(permissionId),
+        granterUserId: parseInt(userId),
+        granteeUserId: validatedData.granteeUserId,
+        documentTypes: validatedData.documentTypes,
+        canRelay: validatedData.canRelay,
+        canViewHistory: validatedData.canViewHistory,
+        maxChainDepth: validatedData.maxChainDepth,
+        status: 'active',
+        updatedAt: new Date()
+      };
+
+      res.json({
+        success: true,
+        permission: updatedPermission
+      });
+    } catch (error: any) {
+      console.error("Error updating sharing permissions:", error);
+      res.status(400).json({ error: error instanceof Error ? error.message : String(error) });
+    }
+  });
+
+  // Revoke sharing chain
+  app.post("/api/chains/:chainId/revoke", async (req: any, res) => {
+    try {
+      const { chainId } = req.params;
+      
+      // Mock chain revocation
+      const revokedChain = {
+        id: parseInt(chainId),
+        status: 'revoked',
+        revokedAt: new Date(),
+        revokedBy: 1 // Current user
+      };
+
+      res.json({
+        success: true,
+        message: "Sharing chain revoked successfully",
+        chain: revokedChain
+      });
+    } catch (error: any) {
+      console.error("Error revoking sharing chain:", error);
+      res.status(500).json({ error: "Failed to revoke sharing chain" });
+    }
+  });
+
+  // Get sharing notifications for a user
+  app.get("/api/users/:userId/sharing-notifications", async (req: any, res) => {
+    try {
+      const { userId } = req.params;
+      const { unreadOnly } = req.query;
+      
+      // Mock notifications
+      const notifications = [
+        {
+          id: 1,
+          fromUser: { id: 1, name: "John Doe", company: "Company A" },
+          notificationType: 'share_request',
+          message: 'John Doe shared a W-9 document with you',
+          documentType: 'w9',
+          isRead: false,
+          createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
+          metadata: { shareToken: 'abc123' }
+        },
+        {
+          id: 2,
+          fromUser: { id: 2, name: "Jane Smith", company: "Company B" },
+          notificationType: 'share_accepted',
+          message: 'Jane Smith accepted your document share',
+          documentType: 'insurance',
+          isRead: true,
+          createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000), // 1 day ago
+          metadata: { chainId: 5 }
+        }
+      ];
+
+      const filteredNotifications = unreadOnly === 'true' 
+        ? notifications.filter(n => !n.isRead)
+        : notifications;
+
+      res.json({
+        success: true,
+        notifications: filteredNotifications,
+        unreadCount: notifications.filter(n => !n.isRead).length
+      });
+    } catch (error: any) {
+      console.error("Error fetching notifications:", error);
+      res.status(500).json({ error: "Failed to fetch notifications" });
+    }
+  });
+
+  // Mark notification as read
+  app.put("/api/notifications/:notificationId/read", async (req: any, res) => {
+    try {
+      const { notificationId } = req.params;
+      
+      // Mock notification update
+      res.json({
+        success: true,
+        message: "Notification marked as read"
+      });
+    } catch (error: any) {
+      console.error("Error marking notification as read:", error);
+      res.status(500).json({ error: "Failed to update notification" });
     }
   });
 

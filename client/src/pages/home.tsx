@@ -21,45 +21,45 @@ import { Plus, Copy, Users, Settings, Filter, MoreHorizontal, Building, Mail, Ch
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const availableFields = [
-  { 
-    id: "company_info", 
-    label: "Company Information", 
-    required: true, 
+  {
+    id: "company_info",
+    label: "Company Information",
+    required: true,
     icon: Building,
     tooltip: "Basic company details including name, address, and business type"
   },
-  { 
-    id: "contact_info", 
-    label: "Primary Contact Information", 
-    required: true, 
+  {
+    id: "contact_info",
+    label: "Primary Contact Information",
+    required: true,
     icon: Mail,
     tooltip: "Main contact person details for business correspondence"
   },
-  { 
-    id: "w9_tax", 
-    label: "W9 / Tax Documentation", 
-    required: false, 
+  {
+    id: "w9_tax",
+    label: "W9 / Tax Documentation",
+    required: false,
     icon: FileText,
     tooltip: "IRS form for U.S. tax identification and reporting"
   },
-  { 
-    id: "insurance", 
-    label: "Certificate of Insurance", 
-    required: false, 
+  {
+    id: "insurance",
+    label: "Certificate of Insurance",
+    required: false,
     icon: Shield,
     tooltip: "Proof of insurance coverage and liability protection"
   },
-  { 
-    id: "banking", 
-    label: "Banking / ACH Info", 
-    required: false, 
+  {
+    id: "banking",
+    label: "Banking / ACH Info",
+    required: false,
     icon: CreditCard,
     tooltip: "Bank details for direct deposit and payment processing"
   },
-  { 
-    id: "license", 
-    label: "Business License", 
-    required: false, 
+  {
+    id: "license",
+    label: "Business License",
+    required: false,
     icon: Award,
     tooltip: "Official permits and licenses to operate your business"
   },
@@ -89,7 +89,7 @@ export default function Home() {
     enabled: !!user,
   });
 
-  const selectedRequest = vendorRequests.find((req: any) => req.id === selectedRequestId);
+  const selectedRequest = (vendorRequests as any[]).find((req: any) => req.id === selectedRequestId);
 
   const form = useForm<CreateRequestFormData>({
     resolver: zodResolver(createRequestSchema),
@@ -140,7 +140,7 @@ export default function Home() {
       });
       return;
     }
-    
+
     // Create a temporary textarea element
     const textArea = document.createElement('textarea');
     textArea.value = text;
@@ -149,14 +149,14 @@ export default function Home() {
     textArea.style.top = '-999999px';
     textArea.setAttribute('readonly', '');
     document.body.appendChild(textArea);
-    
+
     // Select and copy the text
     textArea.select();
     textArea.setSelectionRange(0, 99999); // For mobile devices
-    
+
     try {
       const successful = document.execCommand('copy');
-      
+
       if (successful) {
         toast({
           title: "Link copied!",
@@ -171,7 +171,7 @@ export default function Home() {
       }
     } catch (error) {
       toast({
-        title: "Copy failed", 
+        title: "Copy failed",
         description: "Please open in new tab to copy the link.",
         variant: "destructive",
       });
@@ -189,8 +189,8 @@ export default function Home() {
             <CardDescription>Please sign in to continue</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button 
-              className="w-full" 
+            <Button
+              className="w-full"
               onClick={() => setLocation('/api/login')}
             >
               Sign In
@@ -211,36 +211,34 @@ export default function Home() {
               <h1 className="text-xl font-semibold text-gray-900">Onbo</h1>
             </div>
           </div>
-          
+
           <nav className="px-6">
             <div className="space-y-2">
-              <Button 
+              <Button
                 variant={location === '/dashboard' || location === '/' ? "secondary" : "ghost"}
-                className={`w-full justify-start ${
-                  location === '/dashboard' || location === '/' 
-                    ? 'bg-blue-50 text-blue-700 hover:bg-blue-100' 
+                className={`w-full justify-start ${location === '/dashboard' || location === '/'
+                    ? 'bg-blue-50 text-blue-700 hover:bg-blue-100'
                     : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                }`}
+                  }`}
                 onClick={() => setLocation('/dashboard')}
               >
                 <HomeIcon className="w-4 h-4 mr-3" />
                 Home
               </Button>
-              <Button 
+              <Button
                 variant={location.startsWith('/vendors') ? "secondary" : "ghost"}
-                className={`w-full justify-start ${
-                  location.startsWith('/vendors')
+                className={`w-full justify-start ${location.startsWith('/vendors')
                     ? 'bg-blue-50 text-blue-700 hover:bg-blue-100'
                     : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                }`}
+                  }`}
                 onClick={() => setLocation('/vendors')}
               >
                 <Users className="w-4 h-4 mr-3" />
                 Vendors
               </Button>
               {!isComplete && (
-                <Button 
-                  variant="ghost" 
+                <Button
+                  variant="ghost"
                   className="w-full justify-start text-orange-600 hover:text-orange-700 hover:bg-orange-50 border border-orange-200"
                   onClick={() => setLocation('/profile-setup')}
                 >
@@ -248,13 +246,21 @@ export default function Home() {
                   Complete your profile
                 </Button>
               )}
-              <Button variant="ghost" className="w-full justify-start text-gray-600">
+              <Button
+                variant={location === '/settings' ? "secondary" : "ghost"}
+                className={`w-full justify-start ${location === '/settings'
+                    ? 'bg-blue-50 text-blue-700 hover:bg-blue-100'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  }`}
+                onClick={() => setLocation('/settings')}
+              >
                 <Settings className="w-4 h-4 mr-3" />
                 Settings
               </Button>
+
             </div>
           </nav>
-          
+
           {/* User Menu */}
           <div className="absolute bottom-6 left-6 right-6">
             <DropdownMenu>
@@ -268,7 +274,7 @@ export default function Home() {
                     </div>
                     <div className="text-left">
                       <p className="text-sm font-medium text-gray-900">
-                        {user?.firstName && user?.lastName 
+                        {user?.firstName && user?.lastName
                           ? `${user.firstName} ${user.lastName}`
                           : user?.firstName || 'User'
                         }
@@ -297,17 +303,17 @@ export default function Home() {
                   try {
                     // Sign out from Supabase and await completion
                     await supabase.auth.signOut();
-                    
+
                     // Clear local storage
                     localStorage.removeItem("supabase.auth.token");
                     sessionStorage.clear();
-                    
+
                     // Use proper logout endpoint that clears Google OAuth session
                     await fetch("/api/auth/logout", {
                       method: "GET",
                       credentials: "include",
                     });
-                    
+
                     // Force refresh to ensure clean state
                     window.location.href = "/logged-out";
                   } catch (error) {
@@ -353,12 +359,12 @@ export default function Home() {
               {/* Event Types Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {/* Basic Vendor Setup Card */}
-                {vendorRequests.map((request) => (
-                  <Card 
-                      key={request.id} 
-                      className="cursor-pointer transition-all hover:shadow-md border border-gray-200 relative overflow-hidden"
-                      onClick={() => setSelectedRequestId(request.id)}
-                    >
+                {(vendorRequests as any[]).map((request: any) => (
+                  <Card
+                    key={request.id}
+                    className="cursor-pointer transition-all hover:shadow-md border border-gray-200 relative overflow-hidden"
+                    onClick={() => setSelectedRequestId(request.id)}
+                  >
                     <div className="absolute top-0 left-0 right-0 h-1 bg-blue-500"></div>
                     <CardHeader className="pb-4">
                       <div className="flex items-start justify-between">
@@ -379,7 +385,7 @@ export default function Home() {
                         </Button>
                       </div>
                     </CardHeader>
-                    
+
                     <CardContent className="pt-0">
                       <div className="space-y-4">
                         <p className="text-sm text-blue-600 cursor-pointer hover:underline">
@@ -388,9 +394,9 @@ export default function Home() {
 
                         {/* Actions */}
                         <div className="flex space-x-2 pt-2">
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
+                          <Button
+                            variant="outline"
+                            size="sm"
                             className="flex-1"
                             onClick={(e) => {
                               e.stopPropagation();
@@ -400,8 +406,8 @@ export default function Home() {
                             <Copy className="w-4 h-4 mr-2" />
                             Copy link
                           </Button>
-                          <Button 
-                            variant="outline" 
+                          <Button
+                            variant="outline"
                             size="sm"
                             onClick={(e) => e.stopPropagation()}
                           >
@@ -455,7 +461,7 @@ export default function Home() {
                   <div>
                     <h3 className="text-sm font-medium text-gray-900 mb-3">Asks for:</h3>
                     <div className="space-y-2">
-                      {selectedRequest?.fields.map((fieldId) => {
+                      {selectedRequest?.fields?.map((fieldId: any) => {
                         const field = availableFields.find(f => f.id === fieldId);
                         if (!field) return null;
                         const Icon = field.icon;
@@ -473,7 +479,7 @@ export default function Home() {
 
                   {/* Edit Button */}
                   <div className="pt-6">
-                    <Button 
+                    <Button
                       className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                       onClick={() => {
                         // Navigate to edit page for this onboarding type using the actual ID
