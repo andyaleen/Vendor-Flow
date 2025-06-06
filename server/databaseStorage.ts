@@ -29,23 +29,33 @@ import { eq, and } from "drizzle-orm";
 import type { IStorage } from "./storage";
 
 export class DatabaseStorage implements IStorage {
+  private checkDatabase() {
+    if (!db) {
+      throw new Error('Database connection not available. Please check your DATABASE_URL environment variable.');
+    }
+  }
+
   // User operations (JWT Auth)
   async getUserById(id: number): Promise<User | undefined> {
+    this.checkDatabase();
     const result = await db.select().from(users).where(eq(users.id, id)).limit(1);
     return result[0];
   }
 
   async getUserByEmail(email: string): Promise<User | undefined> {
+    this.checkDatabase();
     const result = await db.select().from(users).where(eq(users.email, email)).limit(1);
     return result[0];
   }
 
   async createUser(user: InsertUser): Promise<User> {
+    this.checkDatabase();
     const result = await db.insert(users).values(user).returning();
     return result[0];
   }
 
   async updateUser(id: number, updates: Partial<InsertUser>): Promise<User | undefined> {
+    this.checkDatabase();
     const result = await db.update(users).set(updates).where(eq(users.id, id)).returning();
     return result[0];
   }
@@ -79,24 +89,27 @@ export class DatabaseStorage implements IStorage {
     const updatedUser = await this.updateUser(existingUser.id, updates);
     return updatedUser || existingUser;
   }
-
   // Partner operations
   async getPartner(id: number): Promise<Partner | undefined> {
+    this.checkDatabase();
     const result = await db.select().from(partners).where(eq(partners.id, id)).limit(1);
     return result[0];
   }
 
   async getPartnerByUsername(username: string): Promise<Partner | undefined> {
+    this.checkDatabase();
     const result = await db.select().from(partners).where(eq(partners.username, username)).limit(1);
     return result[0];
   }
 
   async createPartner(partner: InsertPartner): Promise<Partner> {
+    this.checkDatabase();
     const result = await db.insert(partners).values(partner).returning();
     return result[0];
   }
 
   async updatePartner(id: number, partner: Partial<InsertPartner>): Promise<Partner | undefined> {
+    this.checkDatabase();
     const result = await db.update(partners).set(partner).where(eq(partners.id, id)).returning();
     return result[0];
   }
