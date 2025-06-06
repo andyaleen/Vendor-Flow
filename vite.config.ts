@@ -32,6 +32,7 @@ export default defineConfig({
     host: "0.0.0.0",
     port: 5000,
     strictPort: true,
+    allowedHosts: ["4152186a-a9de-4a3d-9464-f6bbac06e278-00-2hf0u3peljptt.worf.replit.dev"],
     hmr: {
       clientPort: 443,
     },
