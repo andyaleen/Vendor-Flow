@@ -62,28 +62,48 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Add root endpoint 
-app.get('/', (req, res) => {
+// Add API root endpoint
+app.get('/api', (req, res) => {
   res.json({ 
     message: 'VendorVault API is running!',
-    endpoints: ['/api/health', '/api/onboarding-requests', '/api/user/profile']
+    status: 'success',
+    version: '1.0.0',
+    endpoints: {
+      health: '/api/health',
+      onboarding: '/api/onboarding-requests',
+      user: '/api/user/profile'
+    },
+    timestamp: new Date().toISOString()
   });
 });
 
 let isSetup = false;
 
 export default async function handler(req: any, res: any) {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  
   if (!isSetup) {
-    await registerRoutes(app);
+    console.log('Setting up routes...');
+    try {
+      await registerRoutes(app);
+      console.log('Routes registered successfully');
+    } catch (error) {
+      console.error('Failed to register routes:', error);
+    }
     
     app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
       const status = err.status || err.statusCode || 500;
       const message = err.message || "Internal Server Error";
       console.error("API Error:", err);
-      res.status(status).json({ message });
+      res.status(status).json({ 
+        error: true,
+        message,
+        timestamp: new Date().toISOString()
+      });
     });
 
     isSetup = true;
+    console.log('API setup completed');
   }
 
   // Convert Vercel request to Express request
